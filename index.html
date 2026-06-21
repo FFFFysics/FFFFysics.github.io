@@ -6,10 +6,14 @@
 <title>FFFFysics — Research & Knowledge Archive</title>
 <!-- Logo assets: commit these files to the repo so the live site can serve them.
      Falls back to the inline SVG mark if the files are absent. -->
-<link rel="icon" type="image/png" href="assets/ffffysics-mark.png">
+<link rel="icon" type="image/svg+xml" href="assets/ffffysics-mark.svg">
+<link rel="canonical" href="https://ffffysics.github.io/">
 <meta property="og:title" content="FFFFysics — Research & Knowledge Archive">
 <meta property="og:description" content="Physical systems investigated through computation, experiment, and theory.">
-<meta property="og:image" content="assets/ffffysics-lockup.png">
+<meta property="og:url" content="https://ffffysics.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://ffffysics.github.io/assets/ffffysics-lockup.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -221,7 +225,7 @@ button{border:0;background:none}
         <button class="pill" data-lens="FIELD">Field</button>
         <button class="pill" data-lens="FORCE">Force</button>
       </div>
-      <div class="links"><a href="#">GitHub</a><a href="#">CV</a><a href="#">Email</a><a href="#">Scholar</a></div>
+      <div class="links"><a href="https://github.com/FFFFysics/FFFFysics.github.io" target="_blank" rel="noopener noreferrer">GitHub</a><a href="mailto:iron7344@gmail.com">Email</a></div>
     </div>
   </aside>
 
@@ -348,6 +352,7 @@ const modal=document.getElementById('modal');
 const editorForm=document.getElementById('editorForm');
 const toastEl=document.getElementById('toast');
 
+let hasLocalDB=false;
 let db=loadDB();
 let state={page:'research',view:'list',lens:null,search:'',relationTypes:new Set(['direct','analogy','hypothesis']),selected:null,selectedKind:null,zoom:1,panX:0,panY:0};
 let drag=null;
@@ -355,9 +360,26 @@ let editing=null;
 
 function clone(v){return JSON.parse(JSON.stringify(v));}
 function loadDB(){
-  try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(validateDB(parsed))return parsed;}}
-  catch(e){console.warn('Could not load local database',e)}
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(validateDB(parsed)){hasLocalDB=true;return parsed;}
+    }
+  }catch(e){console.warn('Could not load local database',e)}
   return clone(SEED);
+}
+async function loadPublishedSeed(){
+  if(hasLocalDB)return;
+  try{
+    const response=await fetch('./sample-knowledge.json',{cache:'no-store'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const published=await response.json();
+    if(validateDB(published))db=published;
+  }catch(e){
+    // Opening index.html directly can block fetch(); the embedded SEED remains the fallback.
+    console.info('Using embedded knowledge seed',e);
+  }
 }
 function validateDB(v){return v&&Array.isArray(v.notes)&&Array.isArray(v.relations);}
 function saveDB(){
@@ -387,6 +409,7 @@ function navigateFromHash(){
   const parts=h.split('/');
   const page=['research','projects','knowledge','education','writing','about'].includes(parts[0])?parts[0]:'research';
   state.page=page;
+  if(!['research','knowledge'].includes(page))state.view='list';
   if(page!=='knowledge')closeInspector(false);
   renderAll();
   if(page==='knowledge'&&parts[1]&&parts[2]){
@@ -403,7 +426,7 @@ function renderHeader(){
   const title=document.getElementById('pageTitle'),desc=document.getElementById('pageDesc'),meta=document.getElementById('pageMeta'),listLabel=document.getElementById('listLabel');
   if(state.page==='research'){
     title.textContent='FFFFysics';desc.textContent='Physical systems investigated through computation, experiment, and theory — and the notes that reconstruct them.';
-    meta.innerHTML='<span><b>'+RESEARCH_DATA.length+'</b> entries</span><span><b>247</b> commits</span><span>MIT</span>';listLabel.textContent='file tree';
+    meta.innerHTML='<span><b>'+RESEARCH_DATA.length+'</b> entries</span><span><b>4</b> lenses</span><span>MIT</span>';listLabel.textContent='file tree';
   }else if(state.page==='knowledge'){
     title.textContent='Knowledge';desc.textContent='Atomic notes, derivations, known analogies, and unverified intuitions kept at distinct epistemic levels.';
     const counts=countVisibleRelations(false);meta.innerHTML='<span><b>'+db.notes.length+'</b> notes</span><span><b>'+db.relations.length+'</b> relations</span><span><b>'+counts.hypothesis+'</b> active hypotheses</span><span>local-first JSON</span>';listLabel.textContent='note index';
@@ -441,8 +464,9 @@ function renderPlaceholder(){if(state.view==='graph')return;if(state.page==='abo
 
 function renderAbout(){
   const stored=getStoredLogo();
-  const lockup=stored?'<img src="'+stored+'" alt="FFFFysics logo">':(logoFileLoaded?'<img src="'+LOGO.lockup+'" alt="FFFFysics logo">':'<div class="placeholder">no logo file found<br>commit '+LOGO.lockup+' to the repo,<br>or upload one below for local preview</div>');
-  const srcLabel=stored?'local upload (this browser only)':(logoFileLoaded?'committed file · '+LOGO.lockup:'inline SVG fallback');
+  const publicLogo=resolvedLogoPath||LOGO.lockupCandidates[0];
+  const lockup=stored?'<img src="'+stored+'" alt="FFFFysics logo">':(logoFileLoaded?'<img src="'+publicLogo+'" alt="FFFFysics logo">':'<div class="placeholder">no logo file found<br>commit '+LOGO.lockupCandidates[0]+' to the repo,<br>or upload one below for local preview</div>');
+  const srcLabel=stored?'local upload (this browser only)':(logoFileLoaded?'committed file · '+publicLogo:'inline SVG fallback');
   listEl.innerHTML=
     '<div class="brand-panel">'+
       '<div class="brand-lockup" id="brandLockup">'+lockup+'</div>'+
@@ -452,7 +476,7 @@ function renderAbout(){
         '<input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg,image/webp" hidden>'+
       '</div>'+
       '<div class="brand-src">source: '+srcLabel+'</div>'+
-      '<div class="brand-hint">For the public site, commit your logo to the repo as <code>'+LOGO.lockup+'</code> (full lockup) and <code>'+LOGO.mark+'</code> (square mark / favicon). Uploads here override them locally for previewing before you commit. Until a file is committed, the rail shows the inline SVG fallback.</div>'+
+      '<div class="brand-hint">The public files are <code>'+LOGO.lockupCandidates[0]+'</code> (full lockup) and <code>'+LOGO.mark+'</code> (favicon mark). A locally uploaded preview overrides the committed lockup only in this browser.</div>'+
     '</div>';
   const fileInput=document.getElementById('logoFile');
   document.getElementById('logoUploadBtn').onclick=()=>fileInput.click();
@@ -610,20 +634,32 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.
    rail mark = inline SVG (always, sharp at small size).
    About lockup = local upload (localStorage) > committed file > placeholder.
    =================================================================== */
-const LOGO={mark:'assets/ffffysics-mark.png',lockup:'assets/ffffysics-lockup.png'};
-let logoFileLoaded=false;          // true if the committed lockup file resolves
+const LOGO={
+  mark:'assets/ffffysics-mark.svg',
+  lockupCandidates:['assets/ffffysics-lockup.png','ffffysics-lockup.png']
+};
+let logoFileLoaded=false;
+let resolvedLogoPath='';
 function getStoredLogo(){try{return localStorage.getItem('ffp-logo')}catch(e){return null}}
 function applyLogo(){
-  // probe the committed lockup so the About panel knows whether it exists
-  const probe=new Image();
-  probe.onload=()=>{logoFileLoaded=true;if(state.page==='about')renderAbout();};
-  probe.onerror=()=>{logoFileLoaded=false;};
-  probe.src=LOGO.lockup;
+  const candidates=[...LOGO.lockupCandidates];
+  const tryNext=()=>{
+    const path=candidates.shift();
+    if(!path){logoFileLoaded=false;resolvedLogoPath='';if(state.page==='about')renderAbout();return;}
+    const probe=new Image();
+    probe.onload=()=>{logoFileLoaded=true;resolvedLogoPath=path;if(state.page==='about')renderAbout();};
+    probe.onerror=tryNext;
+    probe.src=path;
+  };
+  tryNext();
 }
-applyLogo();
-
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', navigateFromHash, {once:true});
-else setTimeout(navigateFromHash,0);
+async function initialize(){
+  await loadPublishedSeed();
+  applyLogo();
+  navigateFromHash();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize,{once:true});
+else initialize();
 </script>
 </body>
 </html>
