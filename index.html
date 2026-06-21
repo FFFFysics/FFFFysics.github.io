@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFFFysics — Research & Knowledge Archive</title>
+<!-- Logo assets: commit these files to the repo so the live site can serve them.
+     Falls back to the inline SVG mark if the files are absent. -->
+<link rel="icon" type="image/svg+xml" href="assets/ffffysics-mark.svg">
+<link rel="icon" type="image/png" href="assets/ffffysics-mark.png">
+<meta property="og:title" content="FFFFysics — Research & Knowledge Archive">
+<meta property="og:description" content="Physical systems investigated through computation, experiment, and theory.">
+<meta property="og:image" content="assets/ffffysics-lockup.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --ink:#111111;
+  --muted:#737373;
+  --muted2:#9a9a9a;
+  --line:rgba(17,17,17,.16);
+  --line2:rgba(17,17,17,.32);
+  --ac:#0dd9d2;
+  --acd:#00aaa5;
+  --analogy:#7768b8;
+  --hyp:#b87916;
+  --reject:#9b9b9b;
+  --paper:#ffffff;
+  --paper2:#fafafa;
+  --tint:rgba(13,217,210,.035);
+  --rail-w:236px;
+  --inspector-w:390px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'IBM Plex Sans',sans-serif;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:0;background:none}
+.mono{font-family:'IBM Plex Mono',monospace}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.app{display:grid;grid-template-columns:var(--rail-w) 1fr;height:100vh;transition:grid-template-columns .26s cubic-bezier(.4,0,.2,1)}
+.app.collapsed{grid-template-columns:0 1fr}
+.rail{border-right:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column;min-width:0;white-space:nowrap;background:var(--paper);z-index:12}
+.rail-inner{width:var(--rail-w);padding:18px 18px 20px;display:flex;flex-direction:column;gap:22px;height:100%;opacity:1;transition:opacity .18s}
+.app.collapsed .rail-inner{opacity:0}
+.rail-top{display:flex;align-items:flex-start;justify-content:space-between}
+.brand{flex:none;line-height:0;display:inline-flex}
+.symbol{flex:none}
+.brand-img{height:48px;width:auto;max-width:150px;display:block;object-fit:contain}
+/* About page brand panel + logo upload */
+.brand-panel{padding:8px 22px 40px;max-width:640px}
+.brand-lockup{border:1px solid var(--line);border-radius:4px;padding:34px 28px;display:flex;justify-content:center;background:var(--paper2)}
+.brand-lockup img{max-width:340px;width:100%;height:auto;display:block}
+.brand-lockup .placeholder{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted2);text-align:center;line-height:1.7}
+.brand-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.brand-ctl .file-btn{border:1px solid var(--ac);color:var(--acd);background:#fff;padding:7px 12px;border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.brand-ctl .file-btn:hover{background:var(--tint)}
+.brand-ctl .reset-btn{border:1px solid var(--line);color:var(--muted);background:#fff;padding:7px 12px;border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.brand-ctl .reset-btn:hover{border-color:var(--line2);color:var(--ink)}
+.brand-hint{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.7;margin-top:14px}
+.brand-hint code{background:var(--paper2);border:1px solid var(--line);border-radius:2px;padding:1px 5px}
+.brand-src{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted2);margin-top:8px}
+.icon-btn,.collapse-btn,.open-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:5px;border-radius:3px;line-height:0;transition:.12s}
+.icon-btn:hover,.collapse-btn:hover,.open-btn:hover{color:var(--ink);background:rgba(17,17,17,.05)}
+.name{font-weight:300;font-size:17px;letter-spacing:-.01em;line-height:1.25}
+.name b{font-weight:600}
+.role{font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:.02em}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav a{font-size:13.5px;color:var(--ink);text-decoration:none;padding:4px 0;display:flex;align-items:center;gap:9px;cursor:pointer}
+.nav a .dot{width:5px;height:5px;border-radius:50%;background:transparent;flex:none;transition:.12s}
+.nav a:hover .dot{background:var(--line2)}
+.nav a.on .dot{background:var(--ac)}
+.lens{display:flex;flex-direction:column;gap:6px}
+.lens-h{font-size:10px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:11px;border:1px solid var(--line);background:none;color:var(--muted);padding:4px 9px;border-radius:2px;cursor:pointer;text-align:left;letter-spacing:.03em;transition:.12s}
+.pill:hover{border-color:var(--line2);color:var(--ink)}
+.pill.act{border-color:var(--ac);color:var(--acd);background:var(--tint)}
+.links{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:auto}
+.links a{color:var(--muted);text-decoration:none}.links a:hover{color:var(--acd)}
+
+.main{display:flex;flex-direction:column;min-width:0;overflow:auto;position:relative}
+.toolbar{display:flex;align-items:center;gap:12px;padding:12px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);z-index:9}
+.open-btn{display:none}.app.collapsed .open-btn{display:inline-flex}
+.crumb{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted)}.crumb b{color:var(--ink);font-weight:500}
+.toolbar-spacer{flex:1}
+.search-wrap{display:none;position:relative;min-width:250px}
+.search-wrap.show{display:block}
+.search{width:100%;border:1px solid var(--line);border-radius:3px;padding:7px 32px 7px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;outline:none;background:#fff}
+.search:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(13,217,210,.09)}
+.search-x{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--muted);cursor:pointer;display:none}
+.search-wrap.has-value .search-x{display:block}
+.action-btn{display:none;border:1px solid var(--line);padding:6px 9px;border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);background:#fff}
+.action-btn.show{display:inline-flex}.action-btn:hover{border-color:var(--line2);color:var(--ink)}.action-btn.primary{border-color:var(--ac);color:var(--acd)}
+
+.hd{padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.repo{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500}
+.desc{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.55;max-width:65ch}
+.meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:13px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+.toggle{display:flex;border-bottom:1px solid var(--line);padding:0 22px;position:sticky;top:49px;background:#fff;z-index:8}
+.toggle button{background:none;border:none;border-bottom:1.5px solid transparent;padding:12px 2px;margin-right:24px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;letter-spacing:.02em}
+.toggle button .n{width:6px;height:6px;border-radius:50%;background:var(--line2)}
+.toggle button.act{color:var(--ink);border-bottom-color:var(--ac)}.toggle button.act .n{background:var(--ac)}
+
+.subbar{display:none;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 22px;border-bottom:1px solid var(--line);background:var(--paper2)}
+.subbar.show{display:flex}
+.rel-filter{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.rel-filter input{display:none}.rel-filter .swatch{width:14px;height:2px;background:var(--line2)}
+.rel-filter[data-type="direct"] .swatch{background:var(--ac)}
+.rel-filter[data-type="analogy"] .swatch{background:var(--analogy);background-image:linear-gradient(to right,var(--analogy) 55%,transparent 55%);background-size:6px 2px}
+.rel-filter[data-type="hypothesis"] .swatch{background:var(--hyp);background-image:linear-gradient(to right,var(--hyp) 30%,transparent 30%);background-size:5px 2px}
+.rel-filter[data-type="rejected"] .swatch{background:var(--reject);opacity:.65}
+.rel-filter.off{opacity:.38}
+.subnote{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto}
+
+.content-shell{min-height:0;flex:1}
+.list{padding-top:4px}.list.hide{display:none}
+.row{display:grid;grid-template-columns:14px 48px minmax(0,1fr) auto;align-items:center;gap:14px;padding:13px 22px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+.row:last-child{border-bottom:none}.row .node{width:7px;height:7px;border-radius:50%;border:1px solid var(--line2);background:transparent;transition:.14s}
+.row .yr{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
+.row .ttl{font-size:14px;letter-spacing:-.005em;transition:.12s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sub{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);margin-top:3px;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .rt{display:flex;align-items:center;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.row .arr{font-size:13px;color:var(--line2);transition:.14s}.row:hover{background:var(--tint)}
+.row:hover .node{background:var(--ac);border-color:var(--ac);box-shadow:0 0 0 3px rgba(13,217,210,.16)}
+.row:hover .arr{color:var(--acd);transform:translate(2px,-2px)}
+.row.hide{display:none}
+.empty{padding:60px 22px;text-align:center;color:var(--muted);font-size:13px}
+
+.graph{padding:16px 16px 26px;display:none;min-height:610px}.graph.show{display:block}
+.graph-frame{border:1px solid var(--line);position:relative;min-height:560px;background:linear-gradient(rgba(17,17,17,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(17,17,17,.025) 1px,transparent 1px);background-size:34px 34px;overflow:hidden}
+.graph-tools{position:absolute;right:10px;top:10px;display:flex;gap:6px;z-index:3}
+.graph-tools button{width:30px;height:30px;border:1px solid var(--line);background:rgba(255,255,255,.95);cursor:pointer;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;border-radius:3px}
+.graph-tools button:hover{border-color:var(--line2);color:var(--ink)}
+.graph svg{display:block;width:100%;height:560px;touch-action:none;user-select:none}
+.edge{cursor:pointer;transition:opacity .12s,stroke-width .12s}.edge:hover{stroke-width:2.6!important}.edge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.gnode{cursor:grab}.gnode:active{cursor:grabbing}.gnode circle{transition:r .12s,fill .12s,stroke .12s}.gnode:hover circle{r:8}.glabel{font-family:'IBM Plex Mono',monospace;font-size:10px;fill:var(--muted);pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}.gnode.selected circle{fill:var(--ac)!important;stroke:var(--acd)!important;stroke-width:1.8}.gnode.selected .glabel{fill:var(--ink);font-weight:500}
+.graph-empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--muted);font-size:13px;background:rgba(255,255,255,.8)}.graph-empty.show{display:flex}
+
+.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 7px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--muted)}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--line2)}
+.badge.direct{color:var(--acd);border-color:rgba(13,217,210,.45)}.badge.direct::before{background:var(--ac)}
+.badge.analogy{color:var(--analogy);border-color:rgba(119,104,184,.35)}.badge.analogy::before{background:var(--analogy)}
+.badge.hypothesis{color:var(--hyp);border-color:rgba(184,121,22,.35)}.badge.hypothesis::before{background:var(--hyp)}
+.badge.rejected{color:var(--reject)}.badge.rejected::before{background:var(--reject)}
+
+.inspector{position:fixed;right:0;top:0;bottom:0;width:min(var(--inspector-w),100vw);background:#fff;border-left:1px solid var(--line);z-index:30;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(17,17,17,.06)}
+.inspector.open{transform:translateX(0)}
+.inspector-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.inspector-kind{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.inspector-close{margin-left:auto}
+.inspector-body{padding:20px 18px 60px;overflow:auto}.inspector-title{font-size:21px;font-weight:400;line-height:1.25;letter-spacing:-.02em}.inspector-id{font-family:'IBM Plex Mono',monospace;color:var(--muted);font-size:10px;margin-top:6px;word-break:break-all}.inspector-summary{margin-top:18px;color:#333;font-size:13px;line-height:1.65}
+.section{margin-top:24px}.section-h{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.section-p{font-size:12.5px;line-height:1.65;white-space:pre-wrap}.equation{font-family:'IBM Plex Mono',monospace;border-left:2px solid var(--ac);padding:12px 14px;background:var(--paper2);overflow:auto;font-size:13px}.taglist{display:flex;gap:6px;flex-wrap:wrap}.tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--muted);border:1px solid var(--line);padding:3px 6px;border-radius:2px}
+.connection{border-top:1px solid var(--line);padding:10px 0;cursor:pointer}.connection:first-child{border-top:0}.connection:hover .connection-title{color:var(--acd)}.connection-top{display:flex;align-items:center;gap:8px}.connection-title{font-size:12.5px}.connection-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:4px}
+.inspect-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:26px}.small-btn{border:1px solid var(--line);padding:6px 8px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;color:var(--muted)}.small-btn:hover{border-color:var(--line2);color:var(--ink)}.small-btn.ac{border-color:var(--ac);color:var(--acd)}.small-btn.warn{border-color:rgba(184,121,22,.35);color:var(--hyp)}.small-btn.danger{border-color:rgba(160,50,50,.25);color:#9c3333}
+
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(17,17,17,.28)}.modal.open{display:flex}
+.modal-card{width:min(640px,100%);max-height:90vh;overflow:auto;background:#fff;border:1px solid var(--line);box-shadow:0 20px 70px rgba(17,17,17,.16)}
+.modal-head{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}.modal-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500}.modal-close{margin-left:auto}
+.form{padding:18px 16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.field input,.field textarea,.field select{border:1px solid var(--line);border-radius:2px;padding:8px 9px;outline:none;background:#fff;font-size:12.5px}.field textarea{min-height:86px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(13,217,210,.07)}
+.form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;padding-top:4px}.form-actions button{border:1px solid var(--line);padding:7px 10px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;cursor:pointer}.form-actions .save{border-color:var(--ac);color:var(--acd)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);opacity:0;z-index:80;background:#111;color:#fff;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;border-radius:3px;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+.scrim{display:none}
+
+@media(max-width:900px){.search-wrap{min-width:170px}.action-btn span{display:none}.action-btn{padding:6px 8px}.row{grid-template-columns:14px 42px minmax(0,1fr)}.row .rt{display:none}}
+@media(max-width:680px){
+  .app{display:block}
+  .main{height:100vh}
+  .app{grid-template-columns:0 1fr}.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail-w);transform:translateX(-100%);transition:transform .26s cubic-bezier(.4,0,.2,1)}.rail-inner{opacity:1}.app.mobile-open .rail{transform:translateX(0)}.open-btn{display:inline-flex!important}.scrim{display:none;position:fixed;inset:0;background:rgba(17,17,17,.25);z-index:11}.app.mobile-open .scrim{display:block}
+  .toolbar{padding:10px 12px;gap:8px;flex-wrap:wrap}.crumb{font-size:11px}.search-wrap.show{display:block;order:3;flex:1 0 100%;min-width:0}.hd{padding:18px 14px 14px}.toggle{padding:0 14px;top:45px}.subbar{padding:9px 14px}.subnote{width:100%;margin-left:0}.row{padding:12px 14px;grid-template-columns:14px 40px minmax(0,1fr);gap:9px}.graph{padding:10px}.graph-frame{min-height:470px}.graph svg{height:470px}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.form-actions{grid-column:auto}.inspector{width:100vw}.action-btn.mobile-hide{display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="rail">
+    <div class="rail-inner">
+      <div class="rail-top">
+        <span class="brand" id="brandSlot">
+        <svg class="symbol" width="60" height="48" viewBox="0 0 124 100" aria-hidden="true">
+          <line x1="48" y1="14" x2="48" y2="86" stroke="rgba(17,17,17,.4)" stroke-width="1" stroke-dasharray="3 3"/>
+          <line x1="48" y1="52" x2="112" y2="52" stroke="rgba(17,17,17,.4)" stroke-width="1" stroke-dasharray="3 3"/>
+          <ellipse cx="70" cy="52" rx="20" ry="30" fill="none" stroke="rgba(17,17,17,.55)" stroke-width="1"/>
+          <ellipse cx="70" cy="52" rx="32" ry="40" fill="none" stroke="rgba(17,17,17,.35)" stroke-width="1"/>
+          <path d="M2,38 C16,38 26,32 48,49" fill="none" stroke="rgba(17,17,17,.7)" stroke-width="1"/>
+          <path d="M2,46 C16,46 26,44 48,52" fill="none" stroke="rgba(17,17,17,.7)" stroke-width="1"/>
+          <path d="M2,54 C16,54 26,56 48,55" fill="none" stroke="rgba(17,17,17,.7)" stroke-width="1"/>
+          <path d="M50,52 C68,56 86,60 110,68" fill="none" stroke="rgba(17,17,17,.8)" stroke-width="1"/>
+          <path d="M110,68 l-7,-1 l4,5 z" fill="rgba(17,17,17,.8)"/>
+          <line x1="50" y1="52" x2="98" y2="20" stroke="#111" stroke-width="1.4"/>
+          <path d="M98,20 l-8,1 l4,6 z" fill="var(--ac)"/>
+          <circle cx="50" cy="52" r="4.5" fill="none" stroke="#111" stroke-width="1"/>
+          <circle cx="50" cy="52" r="2" fill="var(--ac)"/>
+        </svg>
+        </span>
+        <button class="collapse-btn" id="collapseBtn" aria-label="Collapse sidebar" title="Collapse">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+        </button>
+      </div>
+      <div><div class="name">Ho&#8209;Kyung&nbsp;Jwa</div><div class="role mono">Mechanical Eng · Physics</div></div>
+      <nav class="nav" id="nav">
+        <a class="on" href="#research" data-page="research"><span class="dot"></span>Research</a>
+        <a href="#projects" data-page="projects"><span class="dot"></span>Projects</a>
+        <a href="#knowledge" data-page="knowledge"><span class="dot"></span>Knowledge</a>
+        <a href="#education" data-page="education"><span class="dot"></span>Education</a>
+        <a href="#writing" data-page="writing"><span class="dot"></span>Writing</a>
+        <a href="#about" data-page="about"><span class="dot"></span>About</a>
+      </nav>
+      <div class="lens">
+        <div class="lens-h mono">Lenses</div>
+        <button class="pill" data-lens="FLOW">Flow</button>
+        <button class="pill" data-lens="FLUX">Flux</button>
+        <button class="pill" data-lens="FIELD">Field</button>
+        <button class="pill" data-lens="FORCE">Force</button>
+      </div>
+      <div class="links"><a href="#">GitHub</a><a href="#">CV</a><a href="#">Email</a><a href="#">Scholar</a></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="toolbar">
+      <button class="open-btn" id="openBtn" aria-label="Open sidebar" title="Open"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg></button>
+      <span class="crumb" id="crumb"><b>FFFFysics</b> / research</span>
+      <div class="toolbar-spacer"></div>
+      <div class="search-wrap" id="searchWrap"><label class="sr-only" for="searchInput">Search notes</label><input class="search" id="searchInput" placeholder="search notes / equations / tags"><button class="search-x" id="searchClear" aria-label="Clear search">×</button></div>
+      <button class="action-btn primary" id="addNoteBtn">＋ <span>note</span></button>
+      <button class="action-btn primary" id="addRelationBtn">＋ <span>relation</span></button>
+      <button class="action-btn mobile-hide" id="exportBtn">↓ <span>export</span></button>
+      <button class="action-btn mobile-hide" id="importBtn">↑ <span>import</span></button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+
+    <div class="hd">
+      <div class="repo" id="pageTitle">FFFFysics</div>
+      <p class="desc" id="pageDesc">Physical systems investigated through computation, experiment, and theory — and the notes that reconstruct them.</p>
+      <div class="meta" id="pageMeta"></div>
+    </div>
+
+    <div class="toggle" id="viewToggle">
+      <button class="tg act" data-view="list"><span class="n"></span><span id="listLabel">file tree</span></button>
+      <button class="tg" data-view="graph"><span class="n"></span><span>relation graph</span></button>
+    </div>
+
+    <div class="subbar" id="subbar">
+      <label class="rel-filter" data-type="direct"><input type="checkbox" checked><span class="swatch"></span>direct</label>
+      <label class="rel-filter" data-type="analogy"><input type="checkbox" checked><span class="swatch"></span>analogy</label>
+      <label class="rel-filter" data-type="hypothesis"><input type="checkbox" checked><span class="swatch"></span>hypothesis</label>
+      <label class="rel-filter" data-type="rejected"><input type="checkbox"><span class="swatch"></span>rejected</label>
+      <span class="subnote">edge click = inspect · node drag = save position</span>
+    </div>
+
+    <div class="content-shell">
+      <div class="list" id="list"></div>
+      <div class="graph" id="graph">
+        <div class="graph-frame" id="graphFrame">
+          <div class="graph-tools"><button id="zoomOut" title="Zoom out">−</button><button id="fitGraph" title="Fit graph">fit</button><button id="zoomIn" title="Zoom in">＋</button></div>
+          <svg id="graphSvg" viewBox="0 0 900 560" role="img" aria-label="Relation graph">
+            <defs>
+              <marker id="arrowDirect" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L7,3 z" fill="var(--ac)"/></marker>
+            </defs>
+            <g id="graphViewport"><g id="edges"></g><g id="edgeLabels"></g><g id="nodes"></g></g>
+          </svg>
+          <div class="graph-empty" id="graphEmpty">No visible nodes match the current filters.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="scrim" id="scrim"></div>
+</div>
+
+<aside class="inspector" id="inspector" aria-hidden="true">
+  <div class="inspector-head"><span class="inspector-kind" id="inspectorKind">note</span><button class="icon-btn inspector-close" id="inspectorClose" aria-label="Close inspector">✕</button></div>
+  <div class="inspector-body" id="inspectorBody"></div>
+</aside>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head"><span class="modal-title" id="modalTitle">Add note</span><button class="icon-btn modal-close" id="modalClose" aria-label="Close dialog">✕</button></div>
+    <form class="form" id="editorForm"></form>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const RESEARCH_DATA = [
+  {id:'drl-fsi',y:'2026',t:'DRL-FSI Drag Controller',lens:['FLOW','FORCE'],lang:'Python',st:'ongoing',x:90,gy:60},
+  {id:'plasma-notes',y:'2026',t:'Plasma Physics Notes',lens:['FIELD','FLUX'],lang:'Markdown',st:'published',x:330,gy:55},
+  {id:'combustion-ch8',y:'2026',t:'Advanced Combustion Ch.8',lens:['FLOW','FLUX'],lang:'docx',st:'complete',x:200,gy:120},
+  {id:'cr3bp',y:'2025',t:'CR3BP Orbital Dynamics',lens:['FIELD'],lang:'Fortran',st:'active',x:370,gy:170},
+  {id:'wingprint',y:'2025',t:'WingPrint-RL Topology',lens:['FORCE'],lang:'Python',st:'research',x:110,gy:200},
+  {id:'tacet',y:'2025',t:'TACET EDF UAV',lens:['FLOW','FORCE'],lang:'MATLAB',st:'project',x:60,gy:130},
+  {id:'dragonfly',y:'2024',t:'Dragonfly FSI',lens:['FLOW','FLUX'],lang:'Fortran',st:'paper',x:230,gy:235}
+];
+const RESEARCH_EDGES = [['drl-fsi','tacet'],['drl-fsi','dragonfly'],['drl-fsi','wingprint'],['wingprint','tacet'],['plasma-notes','cr3bp'],['combustion-ch8','dragonfly'],['combustion-ch8','plasma-notes']];
+
+const SEED = {
+  version:1,
+  notes:[
+    {id:'canonical-ensemble',title:'Canonical ensemble',kind:'concept',year:'2026',lenses:['FIELD'],tags:['statistical mechanics','ensemble'],summary:'An equilibrium ensemble for fixed N, V, and T, obtained by coupling the system weakly to a thermal reservoir.',equation:'p_i = e^{-\\beta E_i}/Z',content:'The reservoir fixes temperature while energy fluctuates. The canonical probability distribution follows from equilibrium with a much larger bath.',assumptions:['Weak system–reservoir coupling','Fixed N and V','Thermal equilibrium'],source:'Course note / textbook',x:170,y:120,updated:'2026-06-22'},
+    {id:'partition-function',title:'Partition function',kind:'equation',year:'2026',lenses:['FIELD','FLUX'],tags:['statistical mechanics','generator'],summary:'The normalization factor that compresses the equilibrium state space into a single function.',equation:'Z(\\beta)=\\sum_i e^{-\\beta E_i}',content:'Derivatives of ln Z generate equilibrium moments and thermodynamic potentials.',assumptions:['Discrete state notation shown; integrals replace sums for continua'],source:'Course note / textbook',x:330,y:105,updated:'2026-06-22'},
+    {id:'helmholtz-free-energy',title:'Helmholtz free energy from Z',kind:'equation',year:'2026',lenses:['FIELD','FLUX'],tags:['thermodynamic potential','free energy'],summary:'The equilibrium Helmholtz free energy is determined directly by the canonical partition function.',equation:'F=-k_B T\\ln Z',content:'This relation makes Z a generator not only of averages but of the thermodynamic potential itself.',assumptions:['Canonical ensemble','Hamiltonian specification fixed'],source:'Course note / textbook',x:485,y:82,updated:'2026-06-22'},
+    {id:'mean-energy',title:'Mean energy as a logarithmic derivative',kind:'equation',year:'2026',lenses:['FLUX'],tags:['expectation value','derivative'],summary:'The canonical mean energy is obtained from a logarithmic derivative of the partition function.',equation:'\\langle E\\rangle=-\\partial_\\beta\\ln Z',content:'Differentiating the Boltzmann weights brings down E_i and normalization converts the result into an average.',assumptions:['Hamiltonian has no explicit beta dependence'],source:'Course note / textbook',x:495,y:185,updated:'2026-06-22'},
+    {id:'energy-fluctuation',title:'Energy fluctuation and heat capacity',kind:'equation',year:'2026',lenses:['FLUX'],tags:['fluctuation','response'],summary:'Second derivatives of ln Z connect equilibrium fluctuations to a measurable response coefficient.',equation:'\\operatorname{Var}(E)=k_B T^2 C_V',content:'This is a fluctuation–response relation in the canonical ensemble.',assumptions:['Canonical equilibrium'],source:'Course note / textbook',x:650,y:180,updated:'2026-06-22'},
+    {id:'moment-generating-function',title:'Moment-generating function',kind:'concept',year:'2026',lenses:['FIELD'],tags:['probability','generator'],summary:'A probability-theory object whose derivatives generate moments, structurally resembling the role of partition functions.',equation:'M_X(t)=\\mathbb E[e^{tX}]',content:'The analogy is structural rather than an identity of physical interpretation.',assumptions:[],source:'Probability theory',x:365,y:300,updated:'2026-06-22'},
+    {id:'grand-partition-function',title:'Grand partition function',kind:'equation',year:'2026',lenses:['FIELD','FLUX'],tags:['grand canonical','particle number'],summary:'The generating function for equilibrium systems with fluctuating particle number.',equation:'\\Xi=\\sum_N e^{\\beta\\mu N} Z_N',content:'Derivatives with respect to chemical potential generate particle-number statistics.',assumptions:['Fixed T, V, and chemical potential'],source:'Course note / textbook',x:165,y:305,updated:'2026-06-22'},
+    {id:'domain-wall',title:'Domain wall',kind:'concept',year:'2026',lenses:['FIELD','FORCE'],tags:['Ising model','defect'],summary:'A boundary separating regions with different local spin orientation.',equation:'\\Delta E_{wall}=2J',content:'In one dimension, a domain wall costs finite energy but gains positional entropy.',assumptions:['Nearest-neighbor Ising chain'],source:'Course note / textbook',x:230,y:435,updated:'2026-06-22'},
+    {id:'ising-no-order',title:'Why 1D Ising order fails at finite T',kind:'argument',year:'2026',lenses:['FIELD'],tags:['Ising model','long-range order'],summary:'Finite-energy domain walls proliferate in a sufficiently long chain at any nonzero temperature.',equation:'T>0 \\Rightarrow \\xi<\\infty',content:'The density of walls is nonzero at finite temperature, so spin correlations decay over a finite correlation length.',assumptions:['Infinite one-dimensional chain','Short-range interactions'],source:'Course note / textbook',x:420,y:435,updated:'2026-06-22'},
+    {id:'cycle-affinity',title:'Cycle affinity',kind:'concept',year:'2026',lenses:['FLUX'],tags:['Markov network','nonequilibrium'],summary:'A signed measure of thermodynamic driving accumulated around a directed cycle.',equation:'\\mathcal A_C=\\ln\\prod_{(i\\to j)\\in C} k_{ij}/k_{ji}',content:'Nonzero cycle affinity obstructs detailed balance and encodes oriented circulation.',assumptions:['Finite-state continuous-time Markov network'],source:'Research note',x:610,y:335,updated:'2026-06-22'},
+    {id:'spectral-winding',title:'Non-Hermitian spectral winding',kind:'concept',year:'2026',lenses:['FIELD','FLUX'],tags:['non-Hermitian','topology'],summary:'A winding invariant describing how a complex spectrum encircles a reference point under a parameter cycle.',equation:'\\nu(E_0)=\\frac{1}{2\\pi i}\\oint d\\log\\det[H(k)-E_0]',content:'Its exact thermodynamic meaning depends strongly on model class and parameterization.',assumptions:['Point gap around the reference energy'],source:'Research note',x:740,y:340,updated:'2026-06-22'},
+    {id:'detailed-balance',title:'Detailed balance',kind:'criterion',year:'2026',lenses:['FLUX'],tags:['Markov network','equilibrium'],summary:'A reversibility condition equating probability fluxes pairwise at stationarity.',equation:'\\pi_i k_{ij}=\\pi_j k_{ji}',content:'For connected finite networks it is equivalent to vanishing affinities on all independent cycles.',assumptions:['Stationary distribution exists'],source:'Textbook / research note',x:635,y:470,updated:'2026-06-22'}
+  ],
+  relations:[
+    {id:'r-canonical-z',source:'canonical-ensemble',target:'partition-function',type:'direct',label:'normalization',rationale:'The canonical probabilities are normalized by Z.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-z-f',source:'partition-function',target:'helmholtz-free-energy',type:'direct',label:'defines',rationale:'The canonical partition function determines the Helmholtz free energy through F = -k_B T ln Z.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-z-e',source:'partition-function',target:'mean-energy',type:'direct',label:'log derivative',rationale:'A beta derivative of ln Z gives the canonical average energy.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-e-fluct',source:'mean-energy',target:'energy-fluctuation',type:'direct',label:'second derivative',rationale:'A second beta derivative gives the variance and links it to heat capacity.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-z-mgf',source:'partition-function',target:'moment-generating-function',type:'analogy',label:'generator structure',rationale:'Both encode a distribution in an exponential sum whose derivatives generate moments, while their physical meanings differ.',status:'supported',origin:'known analogy',confidence:'high',tests:[]},
+    {id:'r-xi-z',source:'grand-partition-function',target:'partition-function',type:'direct',label:'sum over N',rationale:'Xi is built from canonical Z_N weighted by fugacity.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-wall-order',source:'domain-wall',target:'ising-no-order',type:'direct',label:'destroys long-range order',rationale:'Finite-energy domain walls occur at nonzero density for any T>0 in the thermodynamic limit.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-aff-db',source:'detailed-balance',target:'cycle-affinity',type:'direct',label:'equivalent criterion',rationale:'Detailed balance holds iff all cycle affinities vanish in a connected finite Markov network.',status:'verified',origin:'textbook',confidence:'high',tests:[]},
+    {id:'r-aff-wind',source:'cycle-affinity',target:'spectral-winding',type:'hypothesis',label:'possible orientation invariant',rationale:'Both quantities appear to encode directed circulation, but a general implication has not been established.',status:'investigating',origin:'user intuition',confidence:'medium',tests:['Check a three-state ring exactly','Take the detailed-balance limit','Search for a counterexample with nonzero affinity but zero point-gap winding']},
+    {id:'r-db-wind',source:'detailed-balance',target:'spectral-winding',type:'rejected',label:'naive equivalence',rationale:'Detailed balance alone does not universally determine a chosen point-gap winding without specifying the operator family and reference point.',status:'rejected',origin:'earlier intuition',confidence:'low',tests:['Retain as a warning against overgeneralization']}
+  ]
+};
+
+const STORAGE_KEY='ffffysics-zettelkasten-v1';
+const app=document.getElementById('app');
+const listEl=document.getElementById('list');
+const graphEl=document.getElementById('graph');
+const graphSvg=document.getElementById('graphSvg');
+const viewport=document.getElementById('graphViewport');
+const edgesG=document.getElementById('edges');
+const edgeLabelsG=document.getElementById('edgeLabels');
+const nodesG=document.getElementById('nodes');
+const inspector=document.getElementById('inspector');
+const inspectorBody=document.getElementById('inspectorBody');
+const modal=document.getElementById('modal');
+const editorForm=document.getElementById('editorForm');
+const toastEl=document.getElementById('toast');
+
+let db=loadDB();
+let state={page:'research',view:'list',lens:null,search:'',relationTypes:new Set(['direct','analogy','hypothesis']),selected:null,selectedKind:null,zoom:1,panX:0,panY:0};
+let drag=null;
+let editing=null;
+
+function clone(v){return JSON.parse(JSON.stringify(v));}
+function loadDB(){
+  try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(validateDB(parsed))return parsed;}}
+  catch(e){console.warn('Could not load local database',e)}
+  return clone(SEED);
+}
+function validateDB(v){return v&&Array.isArray(v.notes)&&Array.isArray(v.relations);}
+function saveDB(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}
+  catch(e){showToast('Browser storage is unavailable. Export your JSON manually.');}
+}
+function showToast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>toastEl.classList.remove('show'),2200);}
+function slugify(s){return (s||'note').toLowerCase().trim().replace(/[^a-z0-9가-힣]+/g,'-').replace(/^-|-$/g,'')||'note';}
+function uniqueId(base,collection){let id=base,i=2;const ids=new Set(collection.map(x=>x.id));while(ids.has(id))id=base+'-'+i++;return id;}
+function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function byId(id){return db.notes.find(n=>n.id===id);}
+function relById(id){return db.relations.find(r=>r.id===id);}
+function relationColor(type){return type==='direct'?'var(--ac)':type==='analogy'?'var(--analogy)':type==='hypothesis'?'var(--hyp)':'var(--reject)';}
+function relationDash(type){return type==='analogy'?'8 5':type==='hypothesis'?'3 6':type==='rejected'?'2 6':'';}
+function relationSymbol(type){return type==='hypothesis'?'?':type==='rejected'?'×':'';}
+function today(){return new Date().toISOString().slice(0,10);}
+
+function isMobile(){return matchMedia('(max-width:680px)').matches;}
+function setCollapsed(c){if(isMobile())app.classList.toggle('mobile-open',!c);else{app.classList.toggle('collapsed',c);try{localStorage.setItem('ffp-rail',c?'1':'0')}catch(e){}}}
+document.getElementById('collapseBtn').onclick=()=>setCollapsed(true);
+document.getElementById('openBtn').onclick=()=>setCollapsed(false);
+document.getElementById('scrim').onclick=()=>app.classList.remove('mobile-open');
+try{if(localStorage.getItem('ffp-rail')==='1'&&!isMobile())app.classList.add('collapsed')}catch(e){}
+
+function navigateFromHash(){
+  const h=(location.hash||'#research').replace(/^#/,'');
+  const parts=h.split('/');
+  const page=['research','projects','knowledge','education','writing','about'].includes(parts[0])?parts[0]:'research';
+  state.page=page;
+  if(page!=='knowledge')closeInspector(false);
+  renderAll();
+  if(page==='knowledge'&&parts[1]&&parts[2]){
+    if(parts[1]==='note'&&byId(parts[2]))openInspector('note',parts[2],false);
+    if(parts[1]==='relation'&&relById(parts[2]))openInspector('relation',parts[2],false);
+  }
+}
+window.addEventListener('hashchange',navigateFromHash);
+document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('[data-page]');if(!a)return;if(isMobile())app.classList.remove('mobile-open')});
+
+function renderAll(){renderNav();renderHeader();renderToolbar();renderView();renderLens();}
+function renderNav(){document.querySelectorAll('[data-page]').forEach(a=>a.classList.toggle('on',a.dataset.page===state.page));document.getElementById('crumb').innerHTML='<b>FFFFysics</b> / '+state.page;}
+function renderHeader(){
+  const title=document.getElementById('pageTitle'),desc=document.getElementById('pageDesc'),meta=document.getElementById('pageMeta'),listLabel=document.getElementById('listLabel');
+  if(state.page==='research'){
+    title.textContent='FFFFysics';desc.textContent='Physical systems investigated through computation, experiment, and theory — and the notes that reconstruct them.';
+    meta.innerHTML='<span><b>'+RESEARCH_DATA.length+'</b> entries</span><span><b>247</b> commits</span><span>MIT</span>';listLabel.textContent='file tree';
+  }else if(state.page==='knowledge'){
+    title.textContent='Knowledge';desc.textContent='Atomic notes, derivations, known analogies, and unverified intuitions kept at distinct epistemic levels.';
+    const counts=countVisibleRelations(false);meta.innerHTML='<span><b>'+db.notes.length+'</b> notes</span><span><b>'+db.relations.length+'</b> relations</span><span><b>'+counts.hypothesis+'</b> active hypotheses</span><span>local-first JSON</span>';listLabel.textContent='note index';
+  }else{
+    title.textContent=state.page[0].toUpperCase()+state.page.slice(1);desc.textContent='Section scaffold retained for the portfolio. Content can be connected to the same archive model later.';meta.innerHTML='<span><b>0</b> published entries</span><span>scaffold</span>';listLabel.textContent='file tree';
+  }
+}
+function renderToolbar(){
+  const knowledge=state.page==='knowledge';
+  document.getElementById('searchWrap').classList.toggle('show',knowledge);
+  ['addNoteBtn','addRelationBtn','exportBtn','importBtn'].forEach(id=>document.getElementById(id).classList.toggle('show',knowledge));
+  document.getElementById('subbar').classList.toggle('show',knowledge&&state.view==='graph');
+  document.querySelectorAll('.tg').forEach(b=>b.classList.toggle('act',b.dataset.view===state.view));
+}
+function renderLens(){document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('act',state.lens===p.dataset.lens));}
+function renderView(){
+  if(state.page==='knowledge')renderKnowledge();
+  else if(state.page==='research')renderResearch();
+  else renderPlaceholder();
+  listEl.classList.toggle('hide',state.view==='graph');graphEl.classList.toggle('show',state.view==='graph');
+  if(state.page==='knowledge'&&state.view==='graph')renderKnowledgeGraph();
+  if(state.page==='research'&&state.view==='graph')renderResearchGraph();
+}
+
+function renderResearch(){
+  if(state.view!=='list')return;
+  listEl.innerHTML='';
+  RESEARCH_DATA.filter(d=>!state.lens||d.lens.includes(state.lens)).forEach(d=>{
+    const row=document.createElement('div');row.className='row';
+    row.innerHTML='<span class="node"></span><span class="yr">'+esc(d.y)+'</span><div><div class="ttl">'+esc(d.t)+'</div><div class="sub">'+esc(d.lens.join(' · '))+'</div></div><div class="rt"><span>'+esc(d.lang)+'</span><span>'+esc(d.st)+'</span><span class="arr">↗</span></div>';
+    row.onclick=()=>showToast('Project page hook: '+d.t);listEl.appendChild(row);
+  });
+}
+function renderPlaceholder(){if(state.view==='graph')return;if(state.page==='about'){renderAbout();return;}listEl.innerHTML='<div class="empty">This section is intentionally left as a scaffold.</div>';}
+
+function renderAbout(){
+  const stored=getStoredLogo();
+  const lockup=stored?'<img src="'+stored+'" alt="FFFFysics logo">':(logoFileLoaded?'<img src="'+LOGO.lockup+'" alt="FFFFysics logo">':'<div class="placeholder">no logo file found<br>commit '+LOGO.lockup+' to the repo,<br>or upload one below for local preview</div>');
+  const srcLabel=stored?'local upload (this browser only)':(logoFileLoaded?'committed file · '+LOGO.lockup:'inline SVG fallback');
+  listEl.innerHTML=
+    '<div class="brand-panel">'+
+      '<div class="brand-lockup" id="brandLockup">'+lockup+'</div>'+
+      '<div class="brand-ctl">'+
+        '<button class="file-btn" id="logoUploadBtn">↑ upload logo</button>'+
+        (stored?'<button class="reset-btn" id="logoResetBtn">reset to committed file</button>':'')+
+        '<input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg,image/webp" hidden>'+
+      '</div>'+
+      '<div class="brand-src">source: '+srcLabel+'</div>'+
+      '<div class="brand-hint">For the public site, commit your logo to the repo as <code>'+LOGO.lockup+'</code> (full lockup), '+
+      '<code>'+LOGO.mark+'</code> (square mark / favicon). Uploads here are stored only in this browser and are handy for previewing before you commit.</div>'+
+    '</div>';
+  const fileInput=document.getElementById('logoFile');
+  document.getElementById('logoUploadBtn').onclick=()=>fileInput.click();
+  fileInput.onchange=e=>{
+    const f=e.target.files&&e.target.files[0];if(!f)return;
+    if(f.size>2*1024*1024){showToast('Image is over 2 MB — commit it to the repo instead');e.target.value='';return;}
+    const r=new FileReader();
+    r.onload=()=>{try{localStorage.setItem('ffp-logo',r.result)}catch(err){showToast('Could not save (storage full)')}applyLogo();renderAbout();showToast('Logo updated (local preview)');};
+    r.readAsDataURL(f);
+  };
+  const reset=document.getElementById('logoResetBtn');
+  if(reset)reset.onclick=()=>{try{localStorage.removeItem('ffp-logo')}catch(e){}applyLogo();renderAbout();showToast('Reverted to committed file');};
+}
+
+function filteredNotes(){
+  const q=state.search.trim().toLowerCase();
+  return db.notes.filter(n=>{
+    if(state.lens&&!n.lenses.includes(state.lens))return false;
+    if(!q)return true;
+    const hay=[n.title,n.id,n.kind,n.summary,n.equation,n.content,n.source,...n.tags,...n.lenses,...(n.assumptions||[])].join(' ').toLowerCase();return hay.includes(q);
+  });
+}
+function visibleRelations(notes=filteredNotes()){
+  const ids=new Set(notes.map(n=>n.id));
+  return db.relations.filter(r=>ids.has(r.source)&&ids.has(r.target)&&state.relationTypes.has(r.type));
+}
+function countVisibleRelations(respectFilters=true){
+  const rels=respectFilters?visibleRelations(db.notes):db.relations;const c={direct:0,analogy:0,hypothesis:0,rejected:0};rels.forEach(r=>c[r.type]=(c[r.type]||0)+1);return c;
+}
+function renderKnowledge(){
+  if(state.view!=='list')return;
+  listEl.innerHTML='';const notes=filteredNotes();
+  if(!notes.length){listEl.innerHTML='<div class="empty">No notes match the current search and lens.</div>';return;}
+  notes.sort((a,b)=>b.updated.localeCompare(a.updated)||a.title.localeCompare(b.title)).forEach(n=>{
+    const relCount=db.relations.filter(r=>r.source===n.id||r.target===n.id).length;
+    const row=document.createElement('div');row.className='row';
+    row.innerHTML='<span class="node"></span><span class="yr">'+esc(n.year||'—')+'</span><div><div class="ttl">'+esc(n.title)+'</div><div class="sub">'+esc([n.kind,...n.tags.slice(0,3)].join(' · '))+'</div></div><div class="rt"><span>'+relCount+' links</span><span>'+esc(n.updated)+'</span><span class="arr">↗</span></div>';
+    row.onclick=()=>openInspector('note',n.id);listEl.appendChild(row);
+  });
+}
+
+function clearGraph(){edgesG.innerHTML='';edgeLabelsG.innerHTML='';nodesG.innerHTML='';}
+function renderResearchGraph(){
+  clearGraph();document.getElementById('graphEmpty').classList.remove('show');resetTransform();
+  const data=RESEARCH_DATA.filter(d=>!state.lens||d.lens.includes(state.lens));const ids=new Set(data.map(d=>d.id));
+  RESEARCH_EDGES.filter(e=>ids.has(e[0])&&ids.has(e[1])).forEach(([aId,bId])=>{
+    const a=RESEARCH_DATA.find(d=>d.id===aId),b=RESEARCH_DATA.find(d=>d.id===bId);const ln=svg('line',{x1:a.x*1.8,y1:a.gy*1.7,x2:b.x*1.8,y2:b.gy*1.7,stroke:'rgba(17,17,17,.18)','stroke-width':1});edgesG.appendChild(ln);
+  });
+  data.forEach(d=>{const x=d.x*1.8,y=d.gy*1.7,g=svg('g',{class:'gnode'}),c=svg('circle',{cx:x,cy:y,r:6,fill:'#fff',stroke:'rgba(17,17,17,.45)','stroke-width':1.2}),t=svg('text',{x:x+11,y:y+3,class:'glabel'});t.textContent=d.t;g.append(c,t);g.onclick=()=>showToast('Project page hook: '+d.t);nodesG.appendChild(g)});
+}
+function renderKnowledgeGraph(){
+  clearGraph();applyTransform();const notes=filteredNotes();const rels=visibleRelations(notes);const ids=new Set(notes.map(n=>n.id));
+  document.getElementById('graphEmpty').classList.toggle('show',notes.length===0);
+  rels.forEach(r=>{
+    const a=byId(r.source),b=byId(r.target);if(!a||!b)return;
+    const ln=svg('line',{class:'edge','data-id':r.id,x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:relationColor(r.type),'stroke-width':r.type==='direct'?1.7:1.45,'stroke-dasharray':relationDash(r.type),'stroke-linecap':'round',opacity:r.type==='rejected'?.55:.9});
+    if(r.type==='direct')ln.setAttribute('marker-end','url(#arrowDirect)');ln.onclick=e=>{e.stopPropagation();openInspector('relation',r.id)};edgesG.appendChild(ln);
+    const symbol=relationSymbol(r.type);if(symbol){const tx=(a.x+b.x)/2,ty=(a.y+b.y)/2-5,t=svg('text',{class:'edge-label',x:tx,y:ty,'text-anchor':'middle',fill:relationColor(r.type)});t.textContent=symbol;t.onclick=e=>{e.stopPropagation();openInspector('relation',r.id)};edgeLabelsG.appendChild(t)}
+  });
+  notes.forEach(n=>{
+    const g=svg('g',{class:'gnode'+(state.selectedKind==='note'&&state.selected===n.id?' selected':''),'data-id':n.id});
+    const c=svg('circle',{cx:n.x,cy:n.y,r:6.5,fill:'#fff',stroke:'rgba(17,17,17,.5)','stroke-width':1.2});
+    const t=svg('text',{class:'glabel',x:n.x+11,y:n.y+3});t.textContent=n.title;g.append(c,t);
+    g.addEventListener('pointerdown',e=>startNodeDrag(e,n));g.addEventListener('click',e=>{if(drag&&drag.moved)return;e.stopPropagation();openInspector('note',n.id)});nodesG.appendChild(g);
+  });
+  graphSvg.onclick=()=>{state.selected=null;state.selectedKind=null;renderKnowledgeGraph()};
+  if(notes.length&&!notes.every(n=>Number.isFinite(n.x)&&Number.isFinite(n.y)))autoLayout(notes);
+}
+function svg(name,attrs={}){const el=document.createElementNS('http://www.w3.org/2000/svg',name);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));return el;}
+function autoLayout(notes){const cx=450,cy=280,r=Math.min(210,80+notes.length*8);notes.forEach((n,i)=>{if(!Number.isFinite(n.x)||!Number.isFinite(n.y)){const a=2*Math.PI*i/notes.length;n.x=cx+r*Math.cos(a);n.y=cy+r*Math.sin(a)}});saveDB();renderKnowledgeGraph();}
+function clientToGraph(e){const rect=graphSvg.getBoundingClientRect();const vb=graphSvg.viewBox.baseVal;const rawX=vb.x+(e.clientX-rect.left)*vb.width/rect.width,rawY=vb.y+(e.clientY-rect.top)*vb.height/rect.height;return{x:(rawX-state.panX)/state.zoom,y:(rawY-state.panY)/state.zoom};}
+function startNodeDrag(e,n){if(e.button!==0)return;e.stopPropagation();const p=clientToGraph(e);drag={id:n.id,dx:n.x-p.x,dy:n.y-p.y,moved:false};graphSvg.setPointerCapture(e.pointerId)}
+graphSvg.addEventListener('pointermove',e=>{if(!drag)return;const n=byId(drag.id),p=clientToGraph(e);const nx=Math.max(18,Math.min(882,p.x+drag.dx)),ny=Math.max(18,Math.min(542,p.y+drag.dy));if(Math.abs(nx-n.x)+Math.abs(ny-n.y)>2)drag.moved=true;n.x=nx;n.y=ny;renderKnowledgeGraph()});
+graphSvg.addEventListener('pointerup',e=>{if(!drag)return;if(drag.moved){saveDB();showToast('Node position saved')}setTimeout(()=>drag=null,0);try{graphSvg.releasePointerCapture(e.pointerId)}catch(err){}});
+function applyTransform(){viewport.setAttribute('transform','translate('+state.panX+' '+state.panY+') scale('+state.zoom+')')}
+function resetTransform(){state.zoom=1;state.panX=0;state.panY=0;applyTransform()}
+document.getElementById('zoomIn').onclick=()=>{state.zoom=Math.min(2.2,state.zoom+.15);applyTransform()};
+document.getElementById('zoomOut').onclick=()=>{state.zoom=Math.max(.55,state.zoom-.15);applyTransform()};
+document.getElementById('fitGraph').onclick=()=>{resetTransform();showToast('Graph view reset')};
+
+function openInspector(kind,id,push=true){
+  state.selectedKind=kind;state.selected=id;inspector.classList.add('open');inspector.setAttribute('aria-hidden','false');document.getElementById('inspectorKind').textContent=kind;
+  if(kind==='note')renderNoteInspector(byId(id));else renderRelationInspector(relById(id));
+  if(push&&state.page==='knowledge')history.pushState(null,'','#knowledge/'+kind+'/'+id);
+  if(state.view==='graph')renderKnowledgeGraph();
+}
+function closeInspector(updateHash=true){inspector.classList.remove('open');inspector.setAttribute('aria-hidden','true');state.selected=null;state.selectedKind=null;if(updateHash&&state.page==='knowledge')history.pushState(null,'','#knowledge');if(state.page==='knowledge'&&state.view==='graph')renderKnowledgeGraph()}
+document.getElementById('inspectorClose').onclick=()=>closeInspector();
+function el(tag,cls,text){const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x;}
+function section(title,contentNode){const s=el('section','section'),h=el('div','section-h',title);s.append(h,contentNode);return s;}
+function renderNoteInspector(n){
+  if(!n){closeInspector();return}inspectorBody.innerHTML='';
+  inspectorBody.append(el('h2','inspector-title',n.title),el('div','inspector-id',n.id));
+  const tags=el('div','taglist');[n.kind,...n.lenses,...n.tags].forEach(v=>tags.append(el('span','tag',v)));inspectorBody.append(section('classification',tags));
+  inspectorBody.append(el('p','inspector-summary',n.summary||'No summary yet.'));
+  if(n.equation){const q=el('div','equation');q.textContent='\\['+n.equation+'\\]';inspectorBody.append(section('core equation',q))}
+  if(n.content)inspectorBody.append(section('note',el('div','section-p',n.content)));
+  if(n.assumptions?.length)inspectorBody.append(section('assumptions',el('div','section-p',n.assumptions.map(x=>'— '+x).join('\n'))));
+  if(n.source)inspectorBody.append(section('source',el('div','section-p',n.source)));
+  const connected=db.relations.filter(r=>r.source===n.id||r.target===n.id);const wrap=el('div');
+  connected.forEach(r=>{const other=byId(r.source===n.id?r.target:r.source),c=el('div','connection');const top=el('div','connection-top');top.append(el('span','badge '+r.type,r.type),el('span','connection-title',other?other.title:'missing note'));c.append(top,el('div','connection-note',r.label+' — '+r.rationale));c.onclick=()=>openInspector('relation',r.id);wrap.append(c)});
+  inspectorBody.append(section('relations · '+connected.length,connected.length?wrap:el('div','section-p','No relations yet.')));
+  const a=el('div','inspect-actions');const edit=el('button','small-btn ac','edit note'),add=el('button','small-btn','connect'),del=el('button','small-btn danger','delete');edit.onclick=()=>openNoteEditor(n);add.onclick=()=>openRelationEditor(null,n.id);del.onclick=()=>deleteNote(n.id);a.append(edit,add,del);inspectorBody.append(a);typesetInspector();
+}
+function renderRelationInspector(r){
+  if(!r){closeInspector();return}inspectorBody.innerHTML='';const a=byId(r.source),b=byId(r.target);
+  inspectorBody.append(el('h2','inspector-title',(a?.title||r.source)+' → '+(b?.title||r.target)),el('div','inspector-id',r.id));
+  const tags=el('div','taglist');tags.append(el('span','badge '+r.type,r.type),el('span','tag',r.status||'unverified'),el('span','tag','origin: '+(r.origin||'unknown')),el('span','tag','confidence: '+(r.confidence||'unset')));inspectorBody.append(section('epistemic status',tags));
+  inspectorBody.append(section('relation label',el('div','section-p',r.label||'—')),section('rationale',el('div','section-p',r.rationale||'—')));
+  if(r.tests?.length)inspectorBody.append(section('tests / next checks',el('div','section-p',r.tests.map(x=>'— '+x).join('\n'))));
+  const c=el('div');[a,b].forEach(n=>{if(!n)return;const x=el('div','connection'),t=el('div','connection-title',n.title);x.append(t,el('div','connection-note',n.summary));x.onclick=()=>openInspector('note',n.id);c.append(x)});inspectorBody.append(section('connected notes',c));
+  const acts=el('div','inspect-actions');const edit=el('button','small-btn ac','edit relation'),direct=el('button','small-btn','promote: direct'),analogy=el('button','small-btn','promote: analogy'),invest=el('button','small-btn warn','mark investigating'),reject=el('button','small-btn','reject'),del=el('button','small-btn danger','delete');
+  edit.onclick=()=>openRelationEditor(r);direct.onclick=()=>changeRelation(r.id,'direct','verified');analogy.onclick=()=>changeRelation(r.id,'analogy','supported');invest.onclick=()=>changeRelation(r.id,'hypothesis','investigating');reject.onclick=()=>changeRelation(r.id,'rejected','rejected');del.onclick=()=>deleteRelation(r.id);acts.append(edit,direct,analogy,invest,reject,del);inspectorBody.append(acts);
+}
+function typesetInspector(){if(window.MathJax?.typesetPromise)window.MathJax.typesetPromise([inspectorBody]).catch(()=>{});}
+function changeRelation(id,type,status){const r=relById(id);if(!r)return;r.type=type;r.status=status;saveDB();renderAll();openInspector('relation',id,false);showToast('Relation updated: '+type)}
+function deleteNote(id){if(!confirm('Delete this note and all relations connected to it?'))return;db.notes=db.notes.filter(n=>n.id!==id);db.relations=db.relations.filter(r=>r.source!==id&&r.target!==id);saveDB();closeInspector();renderAll();showToast('Note deleted')}
+function deleteRelation(id){if(!confirm('Delete this relation?'))return;db.relations=db.relations.filter(r=>r.id!==id);saveDB();closeInspector();renderAll();showToast('Relation deleted')}
+
+function openModal(title){document.getElementById('modalTitle').textContent=title;modal.classList.add('open');modal.setAttribute('aria-hidden','false')}
+function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');editorForm.innerHTML='';editing=null}
+document.getElementById('modalClose').onclick=closeModal;modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+function field(label,name,value='',type='text',full=false,options=[]){const w=el('div','field'+(full?' full':'')),l=el('label','',label);l.htmlFor='f-'+name;let input;if(type==='textarea'){input=document.createElement('textarea');input.value=value||''}else if(type==='select'){input=document.createElement('select');options.forEach(o=>{const op=document.createElement('option');op.value=o.value;op.textContent=o.label;if(o.value===value)op.selected=true;input.appendChild(op)})}else{input=document.createElement('input');input.type=type;input.value=value||''}input.name=name;input.id='f-'+name;w.append(l,input);return w}
+function addFormActions(){const a=el('div','form-actions'),cancel=el('button','','cancel'),save=el('button','save','save');cancel.type='button';cancel.onclick=closeModal;save.type='submit';a.append(cancel,save);editorForm.append(a)}
+function openNoteEditor(note=null){
+  editing={kind:'note',id:note?.id||null};openModal(note?'Edit note':'Add note');editorForm.innerHTML='';
+  editorForm.append(field('title','title',note?.title||''),field('kind','kind',note?.kind||'concept','select',false,[['concept','concept'],['equation','equation'],['argument','argument'],['criterion','criterion'],['question','question']].map(([value,label])=>({value,label}))),field('year','year',note?.year||String(new Date().getFullYear())),field('lenses','lenses',(note?.lenses||[]).join(', ')),field('tags','tags',(note?.tags||[]).join(', '),'text',true),field('summary','summary',note?.summary||'','textarea',true),field('equation (LaTeX)','equation',note?.equation||'','textarea',true),field('note','content',note?.content||'','textarea',true),field('assumptions · one per line','assumptions',(note?.assumptions||[]).join('\n'),'textarea',true),field('source','source',note?.source||'','text',true));addFormActions();
+  editorForm.onsubmit=e=>{e.preventDefault();const f=new FormData(editorForm),title=String(f.get('title')||'').trim();if(!title){showToast('A title is required');return}let n=note;if(!n){const id=uniqueId(slugify(title),db.notes);n={id,x:170+Math.random()*550,y:80+Math.random()*380};db.notes.push(n)}Object.assign(n,{title,kind:f.get('kind'),year:String(f.get('year')||''),lenses:splitCSV(f.get('lenses')),tags:splitCSV(f.get('tags')),summary:String(f.get('summary')||''),equation:String(f.get('equation')||''),content:String(f.get('content')||''),assumptions:splitLines(f.get('assumptions')),source:String(f.get('source')||''),updated:today()});saveDB();closeModal();renderAll();openInspector('note',n.id);showToast(note?'Note updated':'Note added')}
+}
+function openRelationEditor(rel=null,presetSource=''){
+  if(db.notes.length<2){showToast('Create at least two notes first');return}editing={kind:'relation',id:rel?.id||null};openModal(rel?'Edit relation':'Add relation');editorForm.innerHTML='';const opts=db.notes.map(n=>({value:n.id,label:n.title}));
+  editorForm.append(field('source','source',rel?.source||presetSource||db.notes[0].id,'select',false,opts),field('target','target',rel?.target||db.notes.find(n=>n.id!==(presetSource||db.notes[0].id))?.id,'select',false,opts),field('type','type',rel?.type||'hypothesis','select',false,['direct','analogy','hypothesis','rejected'].map(x=>({value:x,label:x}))),field('status','status',rel?.status||'unverified','select',false,['unverified','investigating','supported','verified','rejected','conditional'].map(x=>({value:x,label:x}))),field('label','label',rel?.label||''),field('origin','origin',rel?.origin||'user intuition'),field('confidence','confidence',rel?.confidence||'medium','select',false,['low','medium','high'].map(x=>({value:x,label:x}))),field('rationale','rationale',rel?.rationale||'','textarea',true),field('tests · one per line','tests',(rel?.tests||[]).join('\n'),'textarea',true));addFormActions();
+  editorForm.onsubmit=e=>{e.preventDefault();const f=new FormData(editorForm),source=String(f.get('source')),target=String(f.get('target'));if(source===target){showToast('Source and target must differ');return}let r=rel;if(!r){r={id:uniqueId('rel-'+slugify(source)+'-'+slugify(target),db.relations)};db.relations.push(r)}Object.assign(r,{source,target,type:String(f.get('type')),status:String(f.get('status')),label:String(f.get('label')||''),origin:String(f.get('origin')||''),confidence:String(f.get('confidence')||''),rationale:String(f.get('rationale')||''),tests:splitLines(f.get('tests'))});saveDB();closeModal();renderAll();openInspector('relation',r.id);showToast(rel?'Relation updated':'Relation added')}
+}
+function splitCSV(v){return String(v||'').split(',').map(x=>x.trim()).filter(Boolean)}function splitLines(v){return String(v||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}
+
+document.getElementById('addNoteBtn').onclick=()=>openNoteEditor();document.getElementById('addRelationBtn').onclick=()=>openRelationEditor();
+document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;renderAll()});
+document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{state.lens=state.lens===p.dataset.lens?null:p.dataset.lens;renderAll()});
+document.querySelectorAll('.rel-filter').forEach(l=>{const cb=l.querySelector('input');cb.onchange=()=>{if(cb.checked)state.relationTypes.add(l.dataset.type);else state.relationTypes.delete(l.dataset.type);l.classList.toggle('off',!cb.checked);renderKnowledgeGraph()};l.classList.toggle('off',!cb.checked)});
+const searchInput=document.getElementById('searchInput'),searchWrap=document.getElementById('searchWrap');searchInput.oninput=()=>{state.search=searchInput.value;searchWrap.classList.toggle('has-value',!!state.search);renderView()};document.getElementById('searchClear').onclick=()=>{searchInput.value='';state.search='';searchWrap.classList.remove('has-value');renderView();searchInput.focus()};
+
+document.getElementById('exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ffffysics-knowledge-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500);showToast('Knowledge archive exported')
+};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=async e=>{
+  const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!validateDB(parsed))throw new Error('Invalid structure');if(!confirm('Replace the current local knowledge archive with this JSON?'))return;db=parsed;saveDB();closeInspector(false);renderAll();showToast('Knowledge archive imported')}catch(err){alert('Import failed: '+err.message)}finally{e.target.value=''}
+};
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.contains('open'))closeModal();else if(inspector.classList.contains('open'))closeInspector()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&state.page==='knowledge'){e.preventDefault();searchInput.focus()}});
+
+/* ===================================================================
+   Logo system
+   priority: local upload (localStorage) > committed repo file > inline SVG
+   =================================================================== */
+const LOGO={mark:'assets/ffffysics-mark.png',lockup:'assets/ffffysics-lockup.png'};
+let logoFileLoaded=false;          // true if the committed rail mark resolves
+function getStoredLogo(){try{return localStorage.getItem('ffp-logo')}catch(e){return null}}
+function applyLogo(){
+  const slot=document.getElementById('brandSlot');if(!slot)return;
+  const stored=getStoredLogo();
+  const swap=src=>{slot.innerHTML='<img class="brand-img" src="'+src+'" alt="FFFFysics">';};
+  if(stored){swap(stored);return;}                 // local upload wins
+  const probe=new Image();                          // try committed file
+  probe.onload=()=>{logoFileLoaded=true;swap(LOGO.mark);if(state.page==='about')renderAbout();};
+  probe.onerror=()=>{logoFileLoaded=false;};        // keep inline SVG fallback
+  probe.src=LOGO.mark;
+}
+applyLogo();
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', navigateFromHash, {once:true});
+else setTimeout(navigateFromHash,0);
+</script>
+</body>
+</html>

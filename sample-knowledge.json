@@ -1,0 +1,416 @@
+{
+  "version": 1,
+  "notes": [
+    {
+      "id": "canonical-ensemble",
+      "title": "Canonical ensemble",
+      "kind": "concept",
+      "year": "2026",
+      "lenses": [
+        "FIELD"
+      ],
+      "tags": [
+        "statistical mechanics",
+        "ensemble"
+      ],
+      "summary": "An equilibrium ensemble for fixed N, V, and T, obtained by coupling the system weakly to a thermal reservoir.",
+      "equation": "p_i = e^{-\\beta E_i}/Z",
+      "content": "The reservoir fixes temperature while energy fluctuates. The canonical probability distribution follows from equilibrium with a much larger bath.",
+      "assumptions": [
+        "Weak system–reservoir coupling",
+        "Fixed N and V",
+        "Thermal equilibrium"
+      ],
+      "source": "Course note / textbook",
+      "x": 170,
+      "y": 120,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "partition-function",
+      "title": "Partition function",
+      "kind": "equation",
+      "year": "2026",
+      "lenses": [
+        "FIELD",
+        "FLUX"
+      ],
+      "tags": [
+        "statistical mechanics",
+        "generator"
+      ],
+      "summary": "The normalization factor that compresses the equilibrium state space into a single function.",
+      "equation": "Z(\\beta)=\\sum_i e^{-\\beta E_i}",
+      "content": "Derivatives of ln Z generate equilibrium moments and thermodynamic potentials.",
+      "assumptions": [
+        "Discrete state notation shown; integrals replace sums for continua"
+      ],
+      "source": "Course note / textbook",
+      "x": 330,
+      "y": 105,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "helmholtz-free-energy",
+      "title": "Helmholtz free energy from Z",
+      "kind": "equation",
+      "year": "2026",
+      "lenses": [
+        "FIELD",
+        "FLUX"
+      ],
+      "tags": [
+        "thermodynamic potential",
+        "free energy"
+      ],
+      "summary": "The equilibrium Helmholtz free energy is determined directly by the canonical partition function.",
+      "equation": "F=-k_B T\\ln Z",
+      "content": "This relation makes Z a generator not only of averages but of the thermodynamic potential itself.",
+      "assumptions": [
+        "Canonical ensemble",
+        "Hamiltonian specification fixed"
+      ],
+      "source": "Course note / textbook",
+      "x": 485,
+      "y": 82,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "mean-energy",
+      "title": "Mean energy as a logarithmic derivative",
+      "kind": "equation",
+      "year": "2026",
+      "lenses": [
+        "FLUX"
+      ],
+      "tags": [
+        "expectation value",
+        "derivative"
+      ],
+      "summary": "The canonical mean energy is obtained from a logarithmic derivative of the partition function.",
+      "equation": "\\langle E\\rangle=-\\partial_\\beta\\ln Z",
+      "content": "Differentiating the Boltzmann weights brings down E_i and normalization converts the result into an average.",
+      "assumptions": [
+        "Hamiltonian has no explicit beta dependence"
+      ],
+      "source": "Course note / textbook",
+      "x": 495,
+      "y": 185,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "energy-fluctuation",
+      "title": "Energy fluctuation and heat capacity",
+      "kind": "equation",
+      "year": "2026",
+      "lenses": [
+        "FLUX"
+      ],
+      "tags": [
+        "fluctuation",
+        "response"
+      ],
+      "summary": "Second derivatives of ln Z connect equilibrium fluctuations to a measurable response coefficient.",
+      "equation": "\\operatorname{Var}(E)=k_B T^2 C_V",
+      "content": "This is a fluctuation–response relation in the canonical ensemble.",
+      "assumptions": [
+        "Canonical equilibrium"
+      ],
+      "source": "Course note / textbook",
+      "x": 650,
+      "y": 180,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "moment-generating-function",
+      "title": "Moment-generating function",
+      "kind": "concept",
+      "year": "2026",
+      "lenses": [
+        "FIELD"
+      ],
+      "tags": [
+        "probability",
+        "generator"
+      ],
+      "summary": "A probability-theory object whose derivatives generate moments, structurally resembling the role of partition functions.",
+      "equation": "M_X(t)=\\mathbb E[e^{tX}]",
+      "content": "The analogy is structural rather than an identity of physical interpretation.",
+      "assumptions": [],
+      "source": "Probability theory",
+      "x": 365,
+      "y": 300,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "grand-partition-function",
+      "title": "Grand partition function",
+      "kind": "equation",
+      "year": "2026",
+      "lenses": [
+        "FIELD",
+        "FLUX"
+      ],
+      "tags": [
+        "grand canonical",
+        "particle number"
+      ],
+      "summary": "The generating function for equilibrium systems with fluctuating particle number.",
+      "equation": "\\Xi=\\sum_N e^{\\beta\\mu N} Z_N",
+      "content": "Derivatives with respect to chemical potential generate particle-number statistics.",
+      "assumptions": [
+        "Fixed T, V, and chemical potential"
+      ],
+      "source": "Course note / textbook",
+      "x": 165,
+      "y": 305,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "domain-wall",
+      "title": "Domain wall",
+      "kind": "concept",
+      "year": "2026",
+      "lenses": [
+        "FIELD",
+        "FORCE"
+      ],
+      "tags": [
+        "Ising model",
+        "defect"
+      ],
+      "summary": "A boundary separating regions with different local spin orientation.",
+      "equation": "\\Delta E_{wall}=2J",
+      "content": "In one dimension, a domain wall costs finite energy but gains positional entropy.",
+      "assumptions": [
+        "Nearest-neighbor Ising chain"
+      ],
+      "source": "Course note / textbook",
+      "x": 230,
+      "y": 435,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "ising-no-order",
+      "title": "Why 1D Ising order fails at finite T",
+      "kind": "argument",
+      "year": "2026",
+      "lenses": [
+        "FIELD"
+      ],
+      "tags": [
+        "Ising model",
+        "long-range order"
+      ],
+      "summary": "Finite-energy domain walls proliferate in a sufficiently long chain at any nonzero temperature.",
+      "equation": "T>0 \\Rightarrow \\xi<\\infty",
+      "content": "The density of walls is nonzero at finite temperature, so spin correlations decay over a finite correlation length.",
+      "assumptions": [
+        "Infinite one-dimensional chain",
+        "Short-range interactions"
+      ],
+      "source": "Course note / textbook",
+      "x": 420,
+      "y": 435,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "cycle-affinity",
+      "title": "Cycle affinity",
+      "kind": "concept",
+      "year": "2026",
+      "lenses": [
+        "FLUX"
+      ],
+      "tags": [
+        "Markov network",
+        "nonequilibrium"
+      ],
+      "summary": "A signed measure of thermodynamic driving accumulated around a directed cycle.",
+      "equation": "\\mathcal A_C=\\ln\\prod_{(i\\to j)\\in C} k_{ij}/k_{ji}",
+      "content": "Nonzero cycle affinity obstructs detailed balance and encodes oriented circulation.",
+      "assumptions": [
+        "Finite-state continuous-time Markov network"
+      ],
+      "source": "Research note",
+      "x": 610,
+      "y": 335,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "spectral-winding",
+      "title": "Non-Hermitian spectral winding",
+      "kind": "concept",
+      "year": "2026",
+      "lenses": [
+        "FIELD",
+        "FLUX"
+      ],
+      "tags": [
+        "non-Hermitian",
+        "topology"
+      ],
+      "summary": "A winding invariant describing how a complex spectrum encircles a reference point under a parameter cycle.",
+      "equation": "\\nu(E_0)=\\frac{1}{2\\pi i}\\oint d\\log\\det[H(k)-E_0]",
+      "content": "Its exact thermodynamic meaning depends strongly on model class and parameterization.",
+      "assumptions": [
+        "Point gap around the reference energy"
+      ],
+      "source": "Research note",
+      "x": 740,
+      "y": 340,
+      "updated": "2026-06-22"
+    },
+    {
+      "id": "detailed-balance",
+      "title": "Detailed balance",
+      "kind": "criterion",
+      "year": "2026",
+      "lenses": [
+        "FLUX"
+      ],
+      "tags": [
+        "Markov network",
+        "equilibrium"
+      ],
+      "summary": "A reversibility condition equating probability fluxes pairwise at stationarity.",
+      "equation": "\\pi_i k_{ij}=\\pi_j k_{ji}",
+      "content": "For connected finite networks it is equivalent to vanishing affinities on all independent cycles.",
+      "assumptions": [
+        "Stationary distribution exists"
+      ],
+      "source": "Textbook / research note",
+      "x": 635,
+      "y": 470,
+      "updated": "2026-06-22"
+    }
+  ],
+  "relations": [
+    {
+      "id": "r-canonical-z",
+      "source": "canonical-ensemble",
+      "target": "partition-function",
+      "type": "direct",
+      "label": "normalization",
+      "rationale": "The canonical probabilities are normalized by Z.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-z-f",
+      "source": "partition-function",
+      "target": "helmholtz-free-energy",
+      "type": "direct",
+      "label": "defines",
+      "rationale": "The canonical partition function determines the Helmholtz free energy through F = -k_B T ln Z.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-z-e",
+      "source": "partition-function",
+      "target": "mean-energy",
+      "type": "direct",
+      "label": "log derivative",
+      "rationale": "A beta derivative of ln Z gives the canonical average energy.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-e-fluct",
+      "source": "mean-energy",
+      "target": "energy-fluctuation",
+      "type": "direct",
+      "label": "second derivative",
+      "rationale": "A second beta derivative gives the variance and links it to heat capacity.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-z-mgf",
+      "source": "partition-function",
+      "target": "moment-generating-function",
+      "type": "analogy",
+      "label": "generator structure",
+      "rationale": "Both encode a distribution in an exponential sum whose derivatives generate moments, while their physical meanings differ.",
+      "status": "supported",
+      "origin": "known analogy",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-xi-z",
+      "source": "grand-partition-function",
+      "target": "partition-function",
+      "type": "direct",
+      "label": "sum over N",
+      "rationale": "Xi is built from canonical Z_N weighted by fugacity.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-wall-order",
+      "source": "domain-wall",
+      "target": "ising-no-order",
+      "type": "direct",
+      "label": "destroys long-range order",
+      "rationale": "Finite-energy domain walls occur at nonzero density for any T>0 in the thermodynamic limit.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-aff-db",
+      "source": "detailed-balance",
+      "target": "cycle-affinity",
+      "type": "direct",
+      "label": "equivalent criterion",
+      "rationale": "Detailed balance holds iff all cycle affinities vanish in a connected finite Markov network.",
+      "status": "verified",
+      "origin": "textbook",
+      "confidence": "high",
+      "tests": []
+    },
+    {
+      "id": "r-aff-wind",
+      "source": "cycle-affinity",
+      "target": "spectral-winding",
+      "type": "hypothesis",
+      "label": "possible orientation invariant",
+      "rationale": "Both quantities appear to encode directed circulation, but a general implication has not been established.",
+      "status": "investigating",
+      "origin": "user intuition",
+      "confidence": "medium",
+      "tests": [
+        "Check a three-state ring exactly",
+        "Take the detailed-balance limit",
+        "Search for a counterexample with nonzero affinity but zero point-gap winding"
+      ]
+    },
+    {
+      "id": "r-db-wind",
+      "source": "detailed-balance",
+      "target": "spectral-winding",
+      "type": "rejected",
+      "label": "naive equivalence",
+      "rationale": "Detailed balance alone does not universally determine a chosen point-gap winding without specifying the operator family and reference point.",
+      "status": "rejected",
+      "origin": "earlier intuition",
+      "confidence": "low",
+      "tests": [
+        "Retain as a warning against overgeneralization"
+      ]
+    }
+  ]
+}
