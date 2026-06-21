@@ -1,30 +1,63 @@
-# FFFFysics.github.io
+# FFFFysics
 
+> Chasing **Flow, Flux, Field, and Force** — toward electromagnetic space propulsion.
 
-# 🌌 Welcome to FFFFysics
+<p align="center">
+  <img src="assets/ffffysics-lockup.png" alt="FFFFysics" width="420">
+</p>
 
-> **Chasing the Flow, Flux, Field, and Force (FFFF) to light up the #FFFFFF of deep space.**
-> 암흑 같은 우주 속에서 완전한 빛(#FFFFFF)을 발하는 플라즈마 추진의 본질을 연구합니다.
+A research and knowledge archive at the intersection of **continuum mechanics** and **advanced plasma physics**, organized through four lenses:
 
-I am an aspiring researcher deeply fascinated by the intersection of **continuum mechanics** and **advanced plasma physics**. My academic journey is driven by a vision to pioneer next-generation electromagnetic space propulsion mechanisms through the lens of four fundamental pillars:
+- **Flow** — macroscopic dynamics of high-speed plasma fluids.
+- **Flux** — magnetic and particle fluxes intersecting within the system.
+- **Field** — electromagnetic fields that confine and govern the plasma.
+- **Force** — the Lorentz force (thrust) that drives propulsion.
 
-* **𝖥low :** The macroscopic dynamics of high-speed plasma fluids.
-* **𝖥lux :** The intense magnetic and particle fluxes intersecting within the system.
-* **𝖥ield :** The electromagnetic fields governing and confining cosmic energies.
-* **𝖥force :** The ultimate Lorentz force (Thrust) generated to propel us into deep space.
+The site is a single static page: a research index, a Zettelkasten-style knowledge graph, and an editable note archive. It runs on GitHub Pages with no server or database.
+
+**Live site:** https://FFFFysics.github.io/
+
+---
+
+## Research interests
+
+- **Magnetohydrodynamics (MHD)** — computational modeling of non-ideal plasma, distinct from low-density electrostatic or Hall thrusters.
+- **Space propulsion** — electromagnetic acceleration and energy conversion via magnetic reconnection.
+
+## Tools
+
+- **Physics / CFD** — MHD solvers, PIC simulation (e.g. Smilei)
+- **Engineering** — topology optimization, lightweight structural design, HPC
+- **Languages** — Python, C++, MATLAB
 
 ---
 
-## 🚀 Research Interests
+## Site structure
 
-* **Magnetohydrodynamics (MHD):** High-performance computational modeling of non-ideal plasma simulation—distinct from traditional low-density electrostatic or Hall thrusters.
-* **Space Propulsion:** Investigating electromagnetic acceleration mechanisms and energy conversion via **Magnetic Reconnection**.
+```text
+FFFFysics.github.io/
+├── index.html              # the whole site (research + knowledge graph)
+├── sample-knowledge.json   # starter knowledge data
+├── README.md
+└── assets/
+    ├── ffffysics-mark.png       # square mark (rail / favicon)
+    └── ffffysics-lockup.png     # full lockup (About / social preview)
+```
 
-## 🛠️ Tech Stack & Tools
+## Knowledge archive
 
-* **Physics/CFD:** MHD Solvers, PIC (Particle-in-Cell) Simulation Code (e.g., Smilei)
-* **Engineering/Design:** Topology Optimization, Lightweight Structural Design, High-Performance Computing (HPC)
-* **Languages:** Python, C++, MATLAB
+Notes and relations are stored locally (browser `localStorage`) and can be backed up as JSON.
+
+- **Backup** — `export` button writes a JSON file
+- **Restore** — `import` button loads a JSON file
+- Relations carry epistemic status: `direct`, `analogy`, `hypothesis`, `rejected`
+
+Because GitHub Pages has no backend, edits live only in the editing browser until exported. Export periodically.
+
+## Logo
+
+The site falls back to an inline SVG mark, so it always renders even with no files. To use your own logo, commit PNGs to `assets/`: `ffffysics-mark.png` (square, rail/favicon) and `ffffysics-lockup.png` (full lockup, About/social). You can also preview a logo locally from the **About** page before committing (stored only in your browser).
 
 ---
-✉️ **Contact:** [내 이메일 주소 입력]
+
+✉️ **Contact:** [your email]
