@@ -6,7 +6,7 @@
 <title>FFFFysics — Research & Knowledge Archive</title>
 <!-- Logo assets: commit these files to the repo so the live site can serve them.
      Falls back to the inline SVG mark if the files are absent. -->
-<link rel="icon" type="image/svg+xml" href="assets/ffffysics-mark.svg">
+<link rel="icon" type="image/png" href="assets/ffffysics-mark.png">
 <link rel="canonical" href="https://ffffysics.github.io/">
 <meta property="og:title" content="FFFFysics — Research & Knowledge Archive">
 <meta property="og:description" content="Physical systems investigated through computation, experiment, and theory.">
@@ -58,7 +58,7 @@ button{border:0;background:none}
 .rail-top{display:flex;align-items:flex-start;justify-content:space-between}
 .brand{flex:none;line-height:0;display:inline-flex;text-decoration:none;border-radius:4px;transition:opacity .12s}
 .brand:hover{opacity:.7}
-.brand .brand-img{width:168px;height:auto;max-width:100%;display:block}
+.brand .brand-img{height:52px;width:auto;max-width:120px;display:block}
 .brand{flex:none;line-height:0;display:inline-flex}
 .symbol{flex:none}
 .brand-img{height:48px;width:auto;max-width:150px;display:block;object-fit:contain}
@@ -130,7 +130,18 @@ button{border:0;background:none}
 
 .content-shell{min-height:0;flex:1}
 .list{padding-top:4px}.list.hide{display:none}
-.row{display:grid;grid-template-columns:14px 48px minmax(0,1fr) auto;align-items:center;gap:14px;padding:13px 22px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+.row{display:grid;grid-template-columns:14px 48px minmax(0,1fr) auto;align-items:center;gap:14px;padding:13px 22px;border-bottom:1px solid var(--line);cursor:pointer;position:relative;overflow:hidden;max-height:120px;transition:background .12s,opacity .28s ease,max-height .34s ease,padding .28s ease,transform .3s ease,border-color .28s ease}
+.row.dim{opacity:.1;max-height:0;padding-top:0;padding-bottom:0;border-bottom-color:transparent;transform:translateX(-14px);pointer-events:none}
+/* C — three streamlines flowing into the node on hover (logo motif) */
+.row .trail{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:14px;height:14px;pointer-events:none}
+.row .trail i{position:absolute;left:0;height:1px;width:0;background:var(--ac);opacity:0;transition:width .26s ease,opacity .26s ease}
+.row .trail i:nth-child(1){top:3px;transition-delay:0s}
+.row .trail i:nth-child(2){top:7px;transition-delay:.04s}
+.row .trail i:nth-child(3){top:11px;transition-delay:.08s}
+.row:hover .trail i{opacity:.85}
+.row:hover .trail i:nth-child(1){width:11px}
+.row:hover .trail i:nth-child(2){width:14px}
+.row:hover .trail i:nth-child(3){width:11px}
 .row:last-child{border-bottom:none}.row .node{width:7px;height:7px;border-radius:50%;border:1px solid var(--line2);background:transparent;transition:.14s}
 .row .yr{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)}
 .row .ttl{font-size:14px;letter-spacing:-.005em;transition:.12s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -459,17 +470,18 @@ function renderView(){
 function renderResearch(){
   if(state.view!=='list')return;
   listEl.innerHTML='';
-  RESEARCH_DATA.filter(d=>!state.lens||d.lens.includes(state.lens)).forEach(d=>{
-    const row=document.createElement('div');row.className='row';
-    row.innerHTML='<span class="node"></span><span class="yr">'+esc(d.y)+'</span><div><div class="ttl">'+esc(d.t)+'</div><div class="sub">'+esc(d.lens.join(' · '))+'</div></div><div class="rt"><span>'+esc(d.lang)+'</span><span>'+esc(d.st)+'</span><span class="arr">↗</span></div>';
+  RESEARCH_DATA.forEach(d=>{
+    const row=document.createElement('div');row.className='row';row.dataset.lens=d.lens.join(' ');
+    row.innerHTML='<span class="trail" aria-hidden="true"><i></i><i></i><i></i></span><span class="node"></span><span class="yr">'+esc(d.y)+'</span><div><div class="ttl">'+esc(d.t)+'</div><div class="sub">'+esc(d.lens.join(' · '))+'</div></div><div class="rt"><span>'+esc(d.lang)+'</span><span>'+esc(d.st)+'</span><span class="arr">↗</span></div>';
     row.onclick=()=>showToast('Project page hook: '+d.t);listEl.appendChild(row);
   });
+  applyLensDim();
 }
 function renderPlaceholder(){if(state.view==='graph')return;if(state.page==='about'){renderAbout();return;}listEl.innerHTML='<div class="empty">This section is intentionally left as a scaffold.</div>';}
 
 function renderAbout(){
   const stored=getStoredLogo();
-  const publicLogo=resolvedLogoPath||LOGO.lockupCandidates[0];
+  const publicLogo=resolvedLockupPath||LOGO.lockupCandidates[0];
   const lockup=stored?'<img src="'+stored+'" alt="FFFFysics logo">':(logoFileLoaded?'<img src="'+publicLogo+'" alt="FFFFysics logo">':'<div class="placeholder">no logo file found<br>commit '+LOGO.lockupCandidates[0]+' to the repo,<br>or upload one below for local preview</div>');
   const srcLabel=stored?'local upload (this browser only)':(logoFileLoaded?'committed file · '+publicLogo:'inline SVG fallback');
   listEl.innerHTML=
@@ -481,7 +493,7 @@ function renderAbout(){
         '<input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg,image/webp" hidden>'+
       '</div>'+
       '<div class="brand-src">source: '+srcLabel+'</div>'+
-      '<div class="brand-hint">The public files are <code>'+LOGO.lockupCandidates[0]+'</code> (full lockup) and <code>'+LOGO.mark+'</code> (favicon mark). A locally uploaded preview overrides the committed lockup only in this browser.</div>'+
+      '<div class="brand-hint">The public files are <code>'+LOGO.lockupCandidates[0]+'</code> (full lockup) and <code>'+LOGO.markCandidates[0]+'</code> (square rail mark / favicon). A locally uploaded preview overrides the rail mark only in this browser.</div>'+
     '</div>';
   const fileInput=document.getElementById('logoFile');
   document.getElementById('logoUploadBtn').onclick=()=>fileInput.click();
@@ -511,16 +523,38 @@ function visibleRelations(notes=filteredNotes()){
 function countVisibleRelations(respectFilters=true){
   const rels=respectFilters?visibleRelations(db.notes):db.relations;const c={direct:0,analogy:0,hypothesis:0,rejected:0};rels.forEach(r=>c[r.type]=(c[r.type]||0)+1);return c;
 }
+function searchedNotes(){
+  const q=state.search.trim().toLowerCase();
+  return db.notes.filter(n=>{
+    if(!q)return true;
+    const hay=[n.title,n.id,n.kind,n.summary,n.equation,n.content,n.source,...n.tags,...n.lenses,...(n.assumptions||[])].join(' ').toLowerCase();return hay.includes(q);
+  });
+}
+function applyLensDim(){
+  listEl.querySelectorAll('.row').forEach(r=>{
+    const lens=r.dataset.lens||'';
+    r.classList.toggle('dim', !!state.lens && lens.indexOf(state.lens)<0);
+  });
+}
+function updateLens(){
+  renderLens();
+  if(state.view==='graph'){
+    if(state.page==='knowledge')renderKnowledgeGraph();
+    else if(state.page==='research')renderResearchGraph();
+  }else applyLensDim();
+  renderHeader();
+}
 function renderKnowledge(){
   if(state.view!=='list')return;
-  listEl.innerHTML='';const notes=filteredNotes();
-  if(!notes.length){listEl.innerHTML='<div class="empty">No notes match the current search and lens.</div>';return;}
+  listEl.innerHTML='';const notes=searchedNotes();
+  if(!notes.length){listEl.innerHTML='<div class="empty">No notes match the current search.</div>';return;}
   notes.sort((a,b)=>b.updated.localeCompare(a.updated)||a.title.localeCompare(b.title)).forEach(n=>{
     const relCount=db.relations.filter(r=>r.source===n.id||r.target===n.id).length;
-    const row=document.createElement('div');row.className='row';
-    row.innerHTML='<span class="node"></span><span class="yr">'+esc(n.year||'—')+'</span><div><div class="ttl">'+esc(n.title)+'</div><div class="sub">'+esc([n.kind,...n.tags.slice(0,3)].join(' · '))+'</div></div><div class="rt"><span>'+relCount+' links</span><span>'+esc(n.updated)+'</span><span class="arr">↗</span></div>';
+    const row=document.createElement('div');row.className='row';row.dataset.lens=(n.lenses||[]).join(' ');
+    row.innerHTML='<span class="trail" aria-hidden="true"><i></i><i></i><i></i></span><span class="node"></span><span class="yr">'+esc(n.year||'—')+'</span><div><div class="ttl">'+esc(n.title)+'</div><div class="sub">'+esc([n.kind,...n.tags.slice(0,3)].join(' · '))+'</div></div><div class="rt"><span>'+relCount+' links</span><span>'+esc(n.updated)+'</span><span class="arr">↗</span></div>';
     row.onclick=()=>openInspector('note',n.id);listEl.appendChild(row);
   });
+  applyLensDim();
 }
 
 function clearGraph(){edgesG.innerHTML='';edgeLabelsG.innerHTML='';nodesG.innerHTML='';}
@@ -620,7 +654,7 @@ function splitCSV(v){return String(v||'').split(',').map(x=>x.trim()).filter(Boo
 
 document.getElementById('addNoteBtn').onclick=()=>openNoteEditor();document.getElementById('addRelationBtn').onclick=()=>openRelationEditor();
 document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;renderAll()});
-document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{state.lens=state.lens===p.dataset.lens?null:p.dataset.lens;renderAll()});
+document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>{state.lens=state.lens===p.dataset.lens?null:p.dataset.lens;updateLens()});
 document.querySelectorAll('.rel-filter').forEach(l=>{const cb=l.querySelector('input');cb.onchange=()=>{if(cb.checked)state.relationTypes.add(l.dataset.type);else state.relationTypes.delete(l.dataset.type);l.classList.toggle('off',!cb.checked);renderKnowledgeGraph()};l.classList.toggle('off',!cb.checked)});
 const searchInput=document.getElementById('searchInput'),searchWrap=document.getElementById('searchWrap');searchInput.oninput=()=>{state.search=searchInput.value;searchWrap.classList.toggle('has-value',!!state.search);renderView()};document.getElementById('searchClear').onclick=()=>{searchInput.value='';state.search='';searchWrap.classList.remove('has-value');renderView();searchInput.focus()};
 
@@ -640,38 +674,44 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.
    About lockup = local upload (localStorage) > committed file > placeholder.
    =================================================================== */
 const LOGO={
-  mark:'assets/ffffysics-mark.svg',
+  markCandidates:['assets/ffffysics-mark.png','ffffysics-mark.png'],
   lockupCandidates:['assets/ffffysics-lockup.png','ffffysics-lockup.png']
 };
-let logoFileLoaded=false;
-let resolvedLogoPath='';
+let logoFileLoaded=false;       // committed lockup resolved (for About)
+let resolvedLockupPath='';      // committed lockup path
+let resolvedMarkPath='';        // committed square mark path (for rail)
 function getStoredLogo(){try{return localStorage.getItem('ffp-logo')}catch(e){return null}}
 
-/* rail logo: local upload > committed PNG > inline SVG fallback */
+/* rail mark: local upload > committed mark.png > inline SVG fallback */
 const brandSlotEl=document.getElementById('brandSlot');
 const RAIL_SVG=brandSlotEl?brandSlotEl.innerHTML:'';   // captured once, used to restore
-function currentLogoSrc(){return getStoredLogo()||resolvedLogoPath||'';}
+function railLogoSrc(){return getStoredLogo()||resolvedMarkPath||'';}
 function paintRailLogo(){
   if(!brandSlotEl)return;
-  const src=currentLogoSrc();
+  const src=railLogoSrc();
   brandSlotEl.innerHTML=src?'<img class="brand-img" src="'+src+'" alt="FFFFysics">':RAIL_SVG;
 }
 /* clicking the logo goes home; close the mobile rail on the way */
 const brandLink=document.getElementById('brandLink');
 if(brandLink)brandLink.addEventListener('click',()=>{if(isMobile())app.classList.remove('mobile-open');});
 
-function applyLogo(){
-  const candidates=[...LOGO.lockupCandidates];
+/* probe a candidate list, resolve to first that loads */
+function probeCandidates(list,onResolve){
+  const candidates=[...list];
   const tryNext=()=>{
     const path=candidates.shift();
-    if(!path){logoFileLoaded=false;resolvedLogoPath='';paintRailLogo();if(state.page==='about')renderAbout();return;}
+    if(!path){onResolve('');return;}
     const probe=new Image();
-    probe.onload=()=>{logoFileLoaded=true;resolvedLogoPath=path;paintRailLogo();if(state.page==='about')renderAbout();};
+    probe.onload=()=>onResolve(path);
     probe.onerror=tryNext;
     probe.src=path;
   };
-  paintRailLogo();   // show stored upload (if any) or SVG immediately, before probe resolves
   tryNext();
+}
+function applyLogo(){
+  paintRailLogo();   // show stored upload or SVG immediately
+  probeCandidates(LOGO.markCandidates,p=>{resolvedMarkPath=p;paintRailLogo();});
+  probeCandidates(LOGO.lockupCandidates,p=>{resolvedLockupPath=p;logoFileLoaded=!!p;if(state.page==='about')renderAbout();});
 }
 async function initialize(){
   await loadPublishedSeed();
