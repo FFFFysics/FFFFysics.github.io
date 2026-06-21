@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FFFFysics — Research & Knowledge Archive</title>
+<title>FFFFysics — Interactive Research & Knowledge Archive</title>
 <!-- Logo assets: commit these files to the repo so the live site can serve them.
      Falls back to the inline SVG mark if the files are absent. -->
 <link rel="icon" type="image/png" href="assets/ffffysics-mark.png">
 <link rel="canonical" href="https://ffffysics.github.io/">
-<meta property="og:title" content="FFFFysics — Research & Knowledge Archive">
-<meta property="og:description" content="Physical systems investigated through computation, experiment, and theory.">
+<meta property="og:title" content="FFFFysics — Interactive Research & Knowledge Archive">
+<meta property="og:description" content="An interactive reduced-field model, research archive, and linked knowledge graph for Flow, Flux, Field, and Force.">
 <meta property="og:url" content="https://ffffysics.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://ffffysics.github.io/assets/ffffysics-lockup.png">
@@ -188,6 +188,65 @@ button{border:0;background:none}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);opacity:0;z-index:80;background:#111;color:#fff;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;border-radius:3px;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
 .scrim{display:none}
 
+
+/* ===================================================================
+   HOME — interactive reduced-MHD landing stage
+   Analytic potential-flow + flux-function visualization; not a CFD solver.
+   =================================================================== */
+.hidden{display:none!important}
+.home-stage{display:none;position:relative;min-height:100vh;overflow:hidden;background:#fff;isolation:isolate}
+.home-stage.show{display:block}
+.home-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair;z-index:0}
+.home-wash{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.97) 0%,rgba(255,255,255,.91) 26%,rgba(255,255,255,.28) 58%,rgba(255,255,255,.03) 100%)}
+.home-copy{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:90px clamp(28px,7vw,100px) 72px;pointer-events:none}
+.home-kicker{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+.home-title{font-size:clamp(66px,10vw,148px);line-height:.84;font-weight:300;letter-spacing:-.075em;color:var(--ink);white-space:nowrap}
+.home-title strong{font-weight:600;letter-spacing:-.055em}
+.home-four{font-family:'IBM Plex Mono',monospace;font-size:clamp(11px,1.35vw,16px);letter-spacing:.12em;color:var(--muted);margin-top:28px}
+.home-four .cyan{color:var(--acd)}
+.home-intro{max-width:48ch;font-size:clamp(13px,1.2vw,16px);line-height:1.72;color:#424242;margin-top:24px}
+.home-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px;pointer-events:auto}
+.home-link{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:3px;padding:9px 13px;text-decoration:none;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:10.5px;background:rgba(255,255,255,.82);backdrop-filter:blur(6px);transition:border-color .15s,color .15s,transform .15s,background .15s}
+.home-link:hover{border-color:var(--ac);color:var(--acd);background:#fff;transform:translateY(-1px)}
+.home-link.primary{border-color:var(--ac);color:var(--acd)}
+.home-modes{position:absolute;z-index:3;left:clamp(28px,7vw,100px);bottom:30px;display:flex;gap:7px;pointer-events:auto}
+.home-mode{border:1px solid var(--line);background:rgba(255,255,255,.94);backdrop-filter:blur(8px);padding:5px 9px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.05em;color:var(--muted);cursor:pointer;transition:.15s}
+.home-mode:hover{border-color:var(--line2);color:var(--ink)}
+.home-mode.act{border-color:var(--ac);color:var(--acd);box-shadow:0 0 0 2px rgba(13,217,210,.06)}
+.home-diagnostic{position:absolute;right:20px;bottom:20px;z-index:3;min-width:176px;padding:10px 12px;border:1px solid var(--line);background:rgba(255,255,255,.78);backdrop-filter:blur(8px);font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:1.65;color:var(--muted);pointer-events:none}
+.home-diagnostic b{color:var(--ink);font-weight:500}.home-diagnostic .dcyan{color:var(--acd)}
+.home-hint{position:absolute;z-index:3;right:20px;top:20px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--muted2);pointer-events:none}
+.main.home-mode .toolbar{position:absolute;top:0;left:0;right:0;border-bottom-color:transparent;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0));backdrop-filter:none;z-index:8}
+.main.home-mode .crumb{opacity:.58}
+.main.home-mode .hd,.main.home-mode .toggle,.main.home-mode .subbar{display:none!important}
+.main.home-mode .content-shell{min-height:100vh}
+
+@media(max-width:900px){
+  .home-wash{background:linear-gradient(180deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.82) 45%,rgba(255,255,255,.98) 72%)}
+  .home-copy{justify-content:flex-end;padding:110px 24px 112px}
+  .home-title{font-size:clamp(58px,16vw,100px)}
+  .home-intro{max-width:42ch}
+  .home-modes{left:24px;bottom:24px;max-width:calc(100% - 48px);overflow-x:auto;padding-bottom:2px}
+  .home-diagnostic{right:14px;top:62px;bottom:auto;min-width:154px;font-size:8.5px}
+}
+@media(max-width:680px){
+  .home-stage,.home-copy{min-height:100svh}
+  .home-copy{padding:106px 18px 118px}
+  .home-title{font-size:clamp(54px,18vw,84px)}
+  .home-four{font-size:10px;letter-spacing:.08em;margin-top:20px}
+  .home-intro{font-size:13px;line-height:1.62;margin-top:18px;max-width:34ch}
+  .home-actions{margin-top:22px}
+  .home-link{padding:8px 10px;font-size:9.5px}
+  .home-modes{left:18px;bottom:18px;right:18px}
+  .home-mode{font-size:8.5px;padding:5px 8px}
+  .home-diagnostic{display:none}
+  .home-hint{right:12px;top:56px;font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-link,.home-mode{transition:none}
+  .home-link:hover{transform:none}
+}
+
 @media(max-width:900px){.search-wrap{min-width:170px}.action-btn span{display:none}.action-btn{padding:6px 8px}.row{grid-template-columns:14px 42px minmax(0,1fr)}.row .rt{display:none}}
 @media(max-width:680px){
   .app{display:block}
@@ -202,7 +261,7 @@ button{border:0;background:none}
   <aside class="rail">
     <div class="rail-inner">
       <div class="rail-top">
-        <a class="brand" id="brandLink" href="#research" aria-label="FFFFysics — home">
+        <a class="brand" id="brandLink" href="#home" aria-label="FFFFysics — home">
         <span id="brandSlot">
         <svg class="symbol" width="60" height="48" viewBox="0 0 124 100" aria-hidden="true">
           <line x1="48" y1="14" x2="48" y2="86" stroke="rgba(17,17,17,.4)" stroke-width="1" stroke-dasharray="3 3"/>
@@ -227,7 +286,8 @@ button{border:0;background:none}
       </div>
       <div><div class="name">Ho&#8209;Kyung&nbsp;Jwa</div><div class="role mono">Mechanical Eng · Physics</div></div>
       <nav class="nav" id="nav">
-        <a class="on" href="#research" data-page="research"><span class="dot"></span>Research</a>
+        <a class="on" href="#home" data-page="home"><span class="dot"></span>Home</a>
+        <a href="#research" data-page="research"><span class="dot"></span>Research</a>
         <a href="#projects" data-page="projects"><span class="dot"></span>Projects</a>
         <a href="#knowledge" data-page="knowledge"><span class="dot"></span>Knowledge</a>
         <a href="#education" data-page="education"><span class="dot"></span>Education</a>
@@ -278,6 +338,30 @@ button{border:0;background:none}
     </div>
 
     <div class="content-shell">
+
+      <section class="home-stage" id="homeStage" aria-label="FFFFysics interactive reduced-field model">
+        <canvas class="home-canvas" id="mhdCanvas" aria-hidden="true"></canvas>
+        <div class="home-wash" aria-hidden="true"></div>
+        <div class="home-copy">
+          <div class="home-kicker">interactive reduced-field model</div>
+          <h1 class="home-title"><strong>FFFF</strong>ysics</h1>
+          <div class="home-four">Flow <span class="cyan">·</span> Flux <span class="cyan">·</span> Field <span class="cyan">·</span> Force</div>
+          <p class="home-intro">Continuum mechanics, plasma physics, and electromagnetic propulsion — reconstructed through computation, experiment, theory, and linked notes.</p>
+          <div class="home-actions">
+            <a class="home-link primary" href="#research">enter research <span>↗</span></a>
+            <a class="home-link" href="#knowledge">explore knowledge <span>↗</span></a>
+          </div>
+        </div>
+        <div class="home-modes" role="group" aria-label="Visualization mode">
+          <button class="home-mode act" data-hero-mode="AUTO">AUTO</button>
+          <button class="home-mode" data-hero-mode="FLOW">FLOW</button>
+          <button class="home-mode" data-hero-mode="FLUX">FLUX</button>
+          <button class="home-mode" data-hero-mode="FIELD">FIELD</button>
+          <button class="home-mode" data-hero-mode="FORCE">FORCE</button>
+        </div>
+        <div class="home-diagnostic" id="homeDiagnostic"><b>REDUCED MODEL</b><br>mode <span class="dcyan">AUTO</span><br>|u| 1.000<br>|B| 0.000<br>F* 0.000</div>
+        <div class="home-hint">move pointer to perturb the field</div>
+      </section>
       <div class="list" id="list"></div>
       <div class="graph" id="graph">
         <div class="graph-frame" id="graphFrame">
@@ -370,7 +454,7 @@ const toastEl=document.getElementById('toast');
 
 let hasLocalDB=false;
 let db=loadDB();
-let state={page:'research',view:'list',lens:null,search:'',relationTypes:new Set(['direct','analogy','hypothesis']),selected:null,selectedKind:null,zoom:1,panX:0,panY:0};
+let state={page:'home',view:'list',lens:null,search:'',relationTypes:new Set(['direct','analogy','hypothesis']),selected:null,selectedKind:null,zoom:1,panX:0,panY:0};
 let drag=null;
 let editing=null;
 
@@ -421,9 +505,9 @@ document.getElementById('scrim').onclick=()=>app.classList.remove('mobile-open')
 try{if(localStorage.getItem('ffp-rail')==='1'&&!isMobile())app.classList.add('collapsed')}catch(e){}
 
 function navigateFromHash(){
-  const h=(location.hash||'#research').replace(/^#/,'');
+  const h=(location.hash||'#home').replace(/^#/,'');
   const parts=h.split('/');
-  const page=['research','projects','knowledge','education','writing','about'].includes(parts[0])?parts[0]:'research';
+  const page=['home','research','projects','knowledge','education','writing','about'].includes(parts[0])?parts[0]:'home';
   state.page=page;
   if(!['research','knowledge'].includes(page))state.view='list';
   if(page!=='knowledge')closeInspector(false);
@@ -436,11 +520,14 @@ function navigateFromHash(){
 window.addEventListener('hashchange',navigateFromHash);
 document.getElementById('nav').addEventListener('click',e=>{const a=e.target.closest('[data-page]');if(!a)return;if(isMobile())app.classList.remove('mobile-open')});
 
-function renderAll(){renderNav();renderHeader();renderToolbar();renderView();renderLens();}
+function renderAll(){renderNav();renderHeader();renderToolbar();renderView();renderLens();homeMHD.setMode(state.lens||'AUTO');}
 function renderNav(){document.querySelectorAll('[data-page]').forEach(a=>a.classList.toggle('on',a.dataset.page===state.page));document.getElementById('crumb').innerHTML='<b>FFFFysics</b> / '+state.page;}
 function renderHeader(){
   const title=document.getElementById('pageTitle'),desc=document.getElementById('pageDesc'),meta=document.getElementById('pageMeta'),listLabel=document.getElementById('listLabel');
-  if(state.page==='research'){
+  document.querySelector('.main').classList.toggle('home-mode',state.page==='home');
+  if(state.page==='home'){
+    title.textContent='FFFFysics';desc.textContent='Interactive reduced-field model.';meta.innerHTML='';listLabel.textContent='home';
+  }else if(state.page==='research'){
     title.textContent='FFFFysics';desc.textContent='Physical systems investigated through computation, experiment, and theory — and the notes that reconstruct them.';
     meta.innerHTML='<span><b>'+RESEARCH_DATA.length+'</b> entries</span><span><b>4</b> lenses</span><span>MIT</span>';listLabel.textContent='file tree';
   }else if(state.page==='knowledge'){
@@ -452,17 +539,23 @@ function renderHeader(){
 }
 function renderToolbar(){
   const knowledge=state.page==='knowledge';
+  const graphPage=state.page==='research'||state.page==='knowledge';
   document.getElementById('searchWrap').classList.toggle('show',knowledge);
   ['addNoteBtn','addRelationBtn','exportBtn','importBtn'].forEach(id=>document.getElementById(id).classList.toggle('show',knowledge));
+  document.getElementById('viewToggle').classList.toggle('hidden',!graphPage);
   document.getElementById('subbar').classList.toggle('show',knowledge&&state.view==='graph');
   document.querySelectorAll('.tg').forEach(b=>b.classList.toggle('act',b.dataset.view===state.view));
 }
 function renderLens(){document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('act',state.lens===p.dataset.lens));}
 function renderView(){
+  const home=state.page==='home';
+  document.getElementById('homeStage').classList.toggle('show',home);
+  homeMHD.setActive(home);
   if(state.page==='knowledge')renderKnowledge();
   else if(state.page==='research')renderResearch();
-  else renderPlaceholder();
-  listEl.classList.toggle('hide',state.view==='graph');graphEl.classList.toggle('show',state.view==='graph');
+  else if(!home)renderPlaceholder();
+  listEl.classList.toggle('hide',home||state.view==='graph');
+  graphEl.classList.toggle('show',!home&&state.view==='graph');
   if(state.page==='knowledge'&&state.view==='graph')renderKnowledgeGraph();
   if(state.page==='research'&&state.view==='graph')renderResearchGraph();
 }
@@ -538,10 +631,11 @@ function applyLensDim(){
 }
 function updateLens(){
   renderLens();
+  homeMHD.setMode(state.lens||'AUTO');
   if(state.view==='graph'){
     if(state.page==='knowledge')renderKnowledgeGraph();
     else if(state.page==='research')renderResearchGraph();
-  }else applyLensDim();
+  }else if(state.page!=='home')applyLensDim();
   renderHeader();
 }
 function renderKnowledge(){
@@ -667,6 +761,177 @@ document.getElementById('importFile').onchange=async e=>{
 };
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.contains('open'))closeModal();else if(inspector.classList.contains('open'))closeInspector()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&state.page==='knowledge'){e.preventDefault();searchInput.focus()}});
+
+
+/* ===================================================================
+   Interactive reduced-MHD hero
+   - Flow layer: analytic incompressible potential-flow disturbance.
+   - Flux/field layer: deformable 2-D flux-function contours.
+   - Force layer: nondimensional local J×B proxy vector.
+   This is a reduced visual model, not a Navier–Stokes/MHD PDE solver.
+   =================================================================== */
+const homeMHD=(()=>{
+  const stage=document.getElementById('homeStage');
+  const canvas=document.getElementById('mhdCanvas');
+  const ctx=canvas.getContext('2d',{alpha:false});
+  const diagnostic=document.getElementById('homeDiagnostic');
+  const modeButtons=[...document.querySelectorAll('[data-hero-mode]')];
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let active=false,raf=0,w=1,h=1,dpr=1,last=0,mode='AUTO';
+  let pointer={x:0,y:0,tx:0,ty:0,inside:false,vx:0,vy:0,lastX:0,lastY:0};
+  let ro=null;
+
+  const weights={
+    AUTO:{flow:.74,flux:.50,field:.32,force:.82},
+    FLOW:{flow:1,flux:.12,field:.08,force:.34},
+    FLUX:{flow:.24,flux:1,field:.50,force:.42},
+    FIELD:{flow:.18,flux:.66,field:1,force:.48},
+    FORCE:{flow:.26,flux:.30,field:.42,force:1}
+  };
+
+  function resize(){
+    if(!stage)return;
+    const r=stage.getBoundingClientRect();
+    w=Math.max(1,r.width);h=Math.max(1,r.height);dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    canvas.style.width=w+'px';canvas.style.height=h+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    if(!pointer.inside){pointer.x=pointer.tx=w*.72;pointer.y=pointer.ty=h*.43;}
+    draw(performance.now());
+  }
+  function setActive(v){
+    active=!!v;
+    if(active){resize();if(!raf&&!reduced)raf=requestAnimationFrame(loop);else draw(performance.now());}
+    else{if(raf)cancelAnimationFrame(raf);raf=0;}
+  }
+  function setMode(next){
+    mode=weights[next]?next:'AUTO';
+    modeButtons.forEach(b=>b.classList.toggle('act',b.dataset.heroMode===mode));
+    draw(performance.now());
+  }
+  function modeClick(e){
+    const next=e.currentTarget.dataset.heroMode;
+    state.lens=next==='AUTO'?null:next;
+    setMode(next);renderLens();
+  }
+  modeButtons.forEach(b=>b.addEventListener('click',modeClick));
+
+  stage.addEventListener('pointermove',e=>{
+    const r=stage.getBoundingClientRect();
+    const nx=e.clientX-r.left,ny=e.clientY-r.top;
+    pointer.vx=nx-pointer.lastX;pointer.vy=ny-pointer.lastY;pointer.lastX=nx;pointer.lastY=ny;
+    pointer.tx=nx;pointer.ty=ny;pointer.inside=true;
+    if(reduced)draw(performance.now());
+  });
+  stage.addEventListener('pointerleave',()=>{pointer.inside=false;pointer.tx=w*.72;pointer.ty=h*.43;if(reduced)draw(performance.now())});
+  stage.addEventListener('pointerdown',()=>{stage.classList.toggle('probe-on')});
+
+  function disturbance(x,y,cx,cy,a,strength){
+    const dx=x-cx,dy=y-cy;let r2=dx*dx+dy*dy;
+    const min=a*a*1.08;if(r2<min)r2=min;
+    const r4=r2*r2,aa=a*a;
+    return{u:-strength*aa*(dx*dx-dy*dy)/r4,v:-strength*2*aa*dx*dy/r4};
+  }
+  function velocity(x,y,t){
+    const nodeX=w*.66,nodeY=h*.45;
+    let u=1,v=0;
+    const fixed=disturbance(x,y,nodeX,nodeY,Math.max(24,Math.min(w,h)*.038),1.05);u+=fixed.u;v+=fixed.v;
+    const sheet=Math.exp(-Math.pow((x-w*.54)/(w*.085),2));
+    v+=-(y-nodeY)*.0018*sheet;
+    if(pointer.inside){
+      const mouse=disturbance(x,y,pointer.x,pointer.y,Math.max(18,Math.min(w,h)*.025),.72);u+=mouse.u;v+=mouse.v;
+      const dx=x-pointer.x,dy=y-pointer.y,r2=dx*dx+dy*dy+900;
+      const gamma=Math.max(-26,Math.min(26,pointer.vx-pointer.vy))*.16;
+      u+=-gamma*dy/r2;v+=gamma*dx/r2;
+    }
+    v+=Math.sin(t*.00035+y*.012)*.018;
+    return{u,v};
+  }
+  function streamline(seedY,t,alpha,highlight=false,index=0){
+    let x=-28,y=seedY;const pts=[];const step=Math.max(2.8,Math.min(4.3,w/260));
+    for(let i=0;i<470;i++){
+      if(x>w+30||y<-40||y>h+40)break;
+      pts.push([x,y]);
+      const a=velocity(x,y,t),u1=Math.max(.28,a.u),s1=Math.max(-.22,Math.min(.22,a.v/u1));
+      const mx=x+step*.5,my=y+s1*step*.5;
+      const b=velocity(mx,my,t),u2=Math.max(.28,b.u),s2=Math.max(-.22,Math.min(.22,b.v/u2));
+      x+=step;y+=s2*step;
+    }
+    if(pts.length<2)return;
+    ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
+    ctx.strokeStyle='rgba(17,17,17,'+alpha+')';ctx.lineWidth=highlight?1.15:.68;ctx.stroke();
+    if(highlight&&pts.length>20){
+      const speed=reduced?0:(t*.000035);const k=Math.floor(((speed+index*.23)%1)*(pts.length-1));const p=pts[k];
+      ctx.beginPath();ctx.arc(p[0],p[1],1.7,0,Math.PI*2);ctx.fillStyle='rgba(13,217,210,.88)';ctx.fill();
+    }
+  }
+  function drawFlux(t,alpha,fieldAlpha){
+    const cx=w*.665,cy=h*.45;const base=Math.min(w,h);
+    const px=pointer.x,py=pointer.y;
+    [0.095,0.145,0.205].forEach((r,j)=>{
+      ctx.beginPath();
+      for(let i=0;i<=180;i++){
+        const a=i/180*Math.PI*2;
+        let x=cx+base*r*(1.18+j*.08)*Math.cos(a),y=cy+base*r*.86*Math.sin(a);
+        const dx=x-px,dy=y-py,inf=pointer.inside?Math.exp(-(dx*dx+dy*dy)/(base*base*.032)):0;
+        x+=dx*inf*.07;y+=dy*inf*.05;
+        x+=Math.sin(a*2+t*.00025+j)*1.1;
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle='rgba(17,17,17,'+(alpha*(.40+j*.12))+')';ctx.lineWidth=.75;ctx.stroke();
+    });
+    if(fieldAlpha>.08){
+      for(let i=0;i<12;i++){
+        const a=i/12*Math.PI*2+t*.00008;const rx=base*.17,ry=base*.115;
+        const x=cx+rx*Math.cos(a),y=cy+ry*Math.sin(a);const tx=-rx*Math.sin(a),ty=ry*Math.cos(a);const m=Math.hypot(tx,ty);drawMiniArrow(x,y,tx/m,ty/m,fieldAlpha*.62);
+      }
+    }
+  }
+  function drawMiniArrow(x,y,ux,uy,alpha){
+    const L=10;ctx.beginPath();ctx.moveTo(x-ux*L*.45,y-uy*L*.45);ctx.lineTo(x+ux*L*.45,y+uy*L*.45);ctx.strokeStyle='rgba(13,217,210,'+alpha+')';ctx.lineWidth=.75;ctx.stroke();
+    const ex=x+ux*L*.45,ey=y+uy*L*.45;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-ux*3-uy*2,ey-uy*3+ux*2);ctx.lineTo(ex-ux*3+uy*2,ey-uy*3-ux*2);ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+alpha+')';ctx.fill();
+  }
+  function drawAxis(alpha){
+    const sx=w*.54,cy=h*.45,nodeX=w*.66;
+    ctx.save();ctx.strokeStyle='rgba(17,17,17,'+alpha+')';ctx.lineWidth=.8;ctx.setLineDash([7,8]);
+    ctx.beginPath();ctx.moveTo(sx,h*.18);ctx.lineTo(sx,h*.78);ctx.moveTo(nodeX,cy);ctx.lineTo(w*.93,cy);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(sx,h*.25);ctx.lineTo(sx,h*.68);ctx.strokeStyle='rgba(17,17,17,'+(alpha*1.9)+')';ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
+  }
+  function drawForce(t,alpha){
+    const x=w*.66,y=h*.45;let ax=.82,ay=-.58;
+    if(pointer.inside){const dx=pointer.x-x,dy=pointer.y-y,m=Math.max(1,Math.hypot(dx,dy));ax=.72*ax+.28*dx/m;ay=.72*ay+.28*dy/m;const mm=Math.hypot(ax,ay);ax/=mm;ay/=mm;}
+    const L=Math.min(w,h)*(.20+(mode==='FORCE'?.045:0));const ex=x+ax*L,ey=y+ay*L;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(ex,ey);ctx.strokeStyle='rgba(17,17,17,'+(alpha*.98)+')';ctx.lineWidth=1.6;ctx.stroke();
+    const nx=-ay,ny=ax;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-ax*14+nx*7,ey-ay*14+ny*7);ctx.lineTo(ex-ax*14-nx*7,ey-ay*14-ny*7);ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+Math.min(1,alpha*1.15)+')';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,7.2,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='rgba(17,17,17,.9)';ctx.lineWidth=1.2;ctx.stroke();ctx.beginPath();ctx.arc(x,y,3.2,0,Math.PI*2);ctx.fillStyle='rgba(13,217,210,'+Math.min(1,alpha*1.2)+')';ctx.fill();
+  }
+  function updateDiagnostic(t){
+    const x=pointer.inside?pointer.x:w*.72,y=pointer.inside?pointer.y:h*.43;const q=velocity(x,y,t);const um=Math.hypot(q.u,q.v);
+    const dx=(x-w*.665)/Math.max(1,Math.min(w,h)*.17),dy=(y-h*.45)/Math.max(1,Math.min(w,h)*.12),r2=dx*dx+dy*dy+.18;const bm=Math.min(3,Math.hypot(-dy/r2,dx/r2));const j=Math.exp(-Math.pow((x-w*.54)/(w*.065),2));const f=j*bm;
+    diagnostic.innerHTML='<b>REDUCED MODEL</b><br>mode <span class="dcyan">'+mode+'</span><br>|u| '+um.toFixed(3)+'<br>|B| '+bm.toFixed(3)+'<br>F* '+f.toFixed(3);
+  }
+  function draw(t){
+    if(!canvas||!ctx)return;
+    pointer.x+=(pointer.tx-pointer.x)*(reduced?1:.075);pointer.y+=(pointer.ty-pointer.y)*(reduced?1:.075);
+    ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    const wt=weights[mode]||weights.AUTO;
+    drawAxis(.20+wt.field*.10);
+    const count=w<700?9:15;for(let i=0;i<count;i++){
+      const seed=h*(.21+i/(count-1)*.52);const central=Math.abs(i-(count-1)/2)<2.1;
+      streamline(seed,t,.08+wt.flow*.22,central&&wt.flow>.35,i);
+    }
+    drawFlux(t,.10+wt.flux*.55,.08+wt.field*.7);
+    drawForce(t,.34+wt.force*.66);
+    updateDiagnostic(t);
+  }
+  function loop(t){
+    raf=0;if(!active)return;
+    if(t-last>30){last=t;draw(t)}
+    raf=requestAnimationFrame(loop);
+  }
+  if('ResizeObserver'in window){ro=new ResizeObserver(resize);ro.observe(stage)}else window.addEventListener('resize',resize);
+  return{setActive,setMode,resize};
+})();
 
 /* ===================================================================
    Logo system
