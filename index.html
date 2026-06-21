@@ -254,6 +254,12 @@ button{border:0;background:none}
   .app{grid-template-columns:0 1fr}.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail-w);transform:translateX(-100%);transition:transform .26s cubic-bezier(.4,0,.2,1)}.rail-inner{opacity:1}.app.mobile-open .rail{transform:translateX(0)}.open-btn{display:inline-flex!important}.scrim{display:none;position:fixed;inset:0;background:rgba(17,17,17,.25);z-index:11}.app.mobile-open .scrim{display:block}
   .toolbar{padding:10px 12px;gap:8px;flex-wrap:wrap}.crumb{font-size:11px}.search-wrap.show{display:block;order:3;flex:1 0 100%;min-width:0}.hd{padding:18px 14px 14px}.toggle{padding:0 14px;top:45px}.subbar{padding:9px 14px}.subnote{width:100%;margin-left:0}.row{padding:12px 14px;grid-template-columns:14px 40px minmax(0,1fr);gap:9px}.graph{padding:10px}.graph-frame{min-height:470px}.graph svg{height:470px}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.form-actions{grid-column:auto}.inspector{width:100vw}.action-btn.mobile-hide{display:none!important}
 }
+/* full rectangles — technical-figure aesthetic (override rounded corners; circles for nodes/dots stay) */
+.brand,.brand-lockup,.brand-ctl .file-btn,.brand-ctl .reset-btn,.brand-hint code,
+.icon-btn,.collapse-btn,.open-btn,.pill,.search,.action-btn,.rel-filter,
+.graph-frame,.graph-tools button,.badge,.tag,.small-btn,
+.field input,.field textarea,.field select,.form-actions button,.toast,
+.home-link,.home-mode,.home-diagnostic,.equation{border-radius:0}
 </style>
 </head>
 <body>
@@ -887,6 +893,41 @@ const homeMHD=(()=>{
       }
     }
   }
+  /* reduced B-field: azimuthal circulation around the node + pointer perturbation */
+  function bfield(x,y){
+    const cx=w*.665,cy=h*.45,base=Math.min(w,h);
+    const dx=x-cx,dy=(y-cy)/0.82;
+    let bx=-dy,by=dx;                        // azimuthal direction (B around current node)
+    if(pointer.inside){
+      const ex=x-pointer.x,ey=y-pointer.y,er2=ex*ex+ey*ey+base*base*0.004;
+      const wgt=base*base*0.02/er2;          // local swirl from the pointer
+      bx+=-ey*wgt;by+=ex*wgt;
+    }
+    const m=Math.hypot(bx,by)||1;
+    const dist=Math.hypot(dx,dy);
+    const mag=Math.min(1,(base*0.17)/(dist+base*0.06));
+    return{ux:bx/m,uy:by/m,mag,dist,base};
+  }
+  /* MHD-style vector field: a cyan lattice of small field arrows across the stage */
+  function drawFieldGrid(t,alpha){
+    if(alpha<.03)return;
+    const base=Math.min(w,h),sp=Math.max(38,Math.min(52,base/13)),core=base*0.085;
+    for(let gx=sp*.5;gx<w;gx+=sp){
+      for(let gy=sp*.5;gy<h;gy+=sp){
+        const b=bfield(gx,gy);
+        if(b.dist<core)continue;             // leave the node core to the flux ring
+        const L=sp*.46*(.45+.55*b.mag),a=alpha*(.30+.70*b.mag);
+        const hx=gx-b.ux*L*.5,hy=gy-b.uy*L*.5,ex=gx+b.ux*L*.5,ey=gy+b.uy*L*.5;
+        ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(ex,ey);
+        ctx.strokeStyle='rgba(13,217,210,'+a+')';ctx.lineWidth=.85;ctx.stroke();
+        const hw=2.3;
+        ctx.beginPath();ctx.moveTo(ex,ey);
+        ctx.lineTo(ex-b.ux*4-b.uy*hw,ey-b.uy*4+b.ux*hw);
+        ctx.lineTo(ex-b.ux*4+b.uy*hw,ey-b.uy*4-b.ux*hw);
+        ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+a+')';ctx.fill();
+      }
+    }
+  }
   function drawMiniArrow(x,y,ux,uy,alpha){
     const L=10;ctx.beginPath();ctx.moveTo(x-ux*L*.45,y-uy*L*.45);ctx.lineTo(x+ux*L*.45,y+uy*L*.45);ctx.strokeStyle='rgba(13,217,210,'+alpha+')';ctx.lineWidth=.75;ctx.stroke();
     const ex=x+ux*L*.45,ey=y+uy*L*.45;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-ux*3-uy*2,ey-uy*3+ux*2);ctx.lineTo(ex-ux*3+uy*2,ey-uy*3-ux*2);ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+alpha+')';ctx.fill();
@@ -916,6 +957,7 @@ const homeMHD=(()=>{
     ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
     const wt=weights[mode]||weights.AUTO;
     drawAxis(.20+wt.field*.10);
+    drawFieldGrid(t,.05+wt.field*.6);
     const count=w<700?9:15;for(let i=0;i<count;i++){
       const seed=h*(.21+i/(count-1)*.52);const central=Math.abs(i-(count-1)/2)<2.1;
       streamline(seed,t,.08+wt.flow*.22,central&&wt.flow>.35,i);
