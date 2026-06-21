@@ -6,10 +6,10 @@
 <title>FFFFysics — Research & Knowledge Archive</title>
 <!-- Logo assets: commit these files to the repo so the live site can serve them.
      Falls back to the inline SVG mark if the files are absent. -->
-<link rel="icon" type="image/svg+xml" href="assets/ffffysics-mark.svg">
+<link rel="icon" type="image/png" href="assets/ffffysics-mark.png">
 <meta property="og:title" content="FFFFysics — Research & Knowledge Archive">
 <meta property="og:description" content="Physical systems investigated through computation, experiment, and theory.">
-<meta property="og:image" content="assets/ffffysics-lockup.svg">
+<meta property="og:image" content="assets/ffffysics-lockup.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -452,7 +452,7 @@ function renderAbout(){
         '<input type="file" id="logoFile" accept="image/png,image/svg+xml,image/jpeg,image/webp" hidden>'+
       '</div>'+
       '<div class="brand-src">source: '+srcLabel+'</div>'+
-      '<div class="brand-hint">For the public site, commit your logo to the repo as <code>'+LOGO.lockup+'</code> (full lockup) and <code>'+LOGO.mark+'</code> (square mark / favicon). The bundled SVG assets are already in place — uploads here override them locally for previewing a new logo before you commit.</div>'+
+      '<div class="brand-hint">For the public site, commit your logo to the repo as <code>'+LOGO.lockup+'</code> (full lockup) and <code>'+LOGO.mark+'</code> (square mark / favicon). Uploads here override them locally for previewing before you commit. Until a file is committed, the rail shows the inline SVG fallback.</div>'+
     '</div>';
   const fileInput=document.getElementById('logoFile');
   document.getElementById('logoUploadBtn').onclick=()=>fileInput.click();
@@ -610,7 +610,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.
    rail mark = inline SVG (always, sharp at small size).
    About lockup = local upload (localStorage) > committed file > placeholder.
    =================================================================== */
-const LOGO={mark:'assets/ffffysics-mark.svg',lockup:'assets/ffffysics-lockup.svg'};
+const LOGO={mark:'assets/ffffysics-mark.png',lockup:'assets/ffffysics-lockup.png'};
 let logoFileLoaded=false;          // true if the committed lockup file resolves
 function getStoredLogo(){try{return localStorage.getItem('ffp-logo')}catch(e){return null}}
 function applyLogo(){
