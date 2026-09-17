@@ -184,6 +184,13 @@ button{border:0;background:none}
 .modal-head{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}.modal-title{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500}.modal-close{margin-left:auto}
 .form{padding:18px 16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.field input,.field textarea,.field select{border:1px solid var(--line);border-radius:2px;padding:8px 9px;outline:none;background:#fff;font-size:12.5px}.field textarea{min-height:86px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(13,217,210,.07)}
+.form-note{grid-column:1/-1;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.75;border:1px solid var(--line);border-left:2px solid var(--ac);border-radius:2px;padding:10px 12px;background:var(--paper2)}
+.form-note code{background:#fff;border:1px solid var(--line);border-radius:2px;padding:1px 5px}
+.form-note a{color:var(--acd)}
+.form-result{grid-column:1/-1;display:flex;flex-direction:column;gap:12px}
+.form-result .form-note{grid-column:auto}
+.form-result .ok{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.form-result .ok b{color:var(--acd)}
 .form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;padding-top:4px}.form-actions button{border:1px solid var(--line);padding:7px 10px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;cursor:pointer}.form-actions .save{border-color:var(--ac);color:var(--acd)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);opacity:0;z-index:80;background:#111;color:#fff;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;border-radius:3px;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
 .scrim{display:none}
@@ -321,6 +328,7 @@ button{border:0;background:none}
       <button class="action-btn primary" id="addRelationBtn">＋ <span>relation</span></button>
       <button class="action-btn mobile-hide" id="exportBtn">↓ <span>export</span></button>
       <button class="action-btn mobile-hide" id="importBtn">↑ <span>import</span></button>
+      <button class="action-btn mobile-hide" id="publishBtn">↥ <span>publish</span></button>
       <input type="file" id="importFile" accept="application/json" hidden>
     </div>
 
@@ -547,7 +555,7 @@ function renderToolbar(){
   const knowledge=state.page==='knowledge';
   const graphPage=state.page==='research'||state.page==='knowledge';
   document.getElementById('searchWrap').classList.toggle('show',knowledge);
-  ['addNoteBtn','addRelationBtn','exportBtn','importBtn'].forEach(id=>document.getElementById(id).classList.toggle('show',knowledge));
+  ['addNoteBtn','addRelationBtn','exportBtn','importBtn','publishBtn'].forEach(id=>document.getElementById(id).classList.toggle('show',knowledge));
   document.getElementById('viewToggle').classList.toggle('hidden',!graphPage);
   document.getElementById('subbar').classList.toggle('show',knowledge&&state.view==='graph');
   document.querySelectorAll('.tg').forEach(b=>b.classList.toggle('act',b.dataset.view===state.view));
@@ -765,6 +773,175 @@ document.getElementById('importBtn').onclick=()=>document.getElementById('import
 document.getElementById('importFile').onchange=async e=>{
   const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());if(!validateDB(parsed))throw new Error('Invalid structure');if(!confirm('Replace the current local knowledge archive with this JSON?'))return;db=parsed;saveDB();closeInspector(false);renderAll();showToast('Knowledge archive imported')}catch(err){alert('Import failed: '+err.message)}finally{e.target.value=''}
 };
+
+/* ===================================================================
+   Publish to GitHub
+   - Commits the current archive straight to sample-knowledge.json via
+     the GitHub Contents API, so a browser edit becomes a real commit
+     and GitHub Pages redeploys on its own.
+   - The token is a fine-grained PAT that never leaves this browser:
+     it lives in localStorage (or in memory for the session only) and
+     is sent to api.github.com and nowhere else.
+   =================================================================== */
+const publisher=(()=>{
+  const CFG_KEY='ffp-gh';
+  const DEFAULTS={owner:'FFFFysics',repo:'FFFFysics.github.io',branch:'main',path:'sample-knowledge.json'};
+  const TOKEN_HELP='https://github.com/settings/personal-access-tokens/new';
+  let sessionToken='';
+
+  function loadCfg(){
+    let saved={};
+    try{saved=JSON.parse(localStorage.getItem(CFG_KEY)||'{}')||{}}catch(e){}
+    return Object.assign({},DEFAULTS,saved,{token:saved.token||sessionToken||''});
+  }
+  function saveCfg(cfg,remember){
+    sessionToken=cfg.token;
+    const store={owner:cfg.owner,repo:cfg.repo,branch:cfg.branch,path:cfg.path};
+    if(remember)store.token=cfg.token;
+    try{localStorage.setItem(CFG_KEY,JSON.stringify(store))}catch(e){showToast('Could not remember these settings')}
+  }
+  function storedToken(){
+    try{return !!(JSON.parse(localStorage.getItem(CFG_KEY)||'{}')||{}).token}catch(e){return false}
+  }
+  function forgetToken(){
+    sessionToken='';
+    try{const c=JSON.parse(localStorage.getItem(CFG_KEY)||'{}')||{};delete c.token;localStorage.setItem(CFG_KEY,JSON.stringify(c))}catch(e){}
+  }
+
+  function toBase64(str){
+    const bytes=new TextEncoder().encode(str);
+    let bin='';
+    for(let i=0;i<bytes.length;i+=0x8000)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));
+    return btoa(bin);
+  }
+
+  async function ghFetch(cfg,route,init={}){
+    const headers=Object.assign({
+      'Accept':'application/vnd.github+json',
+      'X-GitHub-Api-Version':'2022-11-28',
+      'Authorization':'Bearer '+cfg.token
+    },init.body?{'Content-Type':'application/json'}:{});
+    const res=await fetch('https://api.github.com'+route,Object.assign({},init,{headers}));
+    const text=await res.text();
+    let data=null;try{data=text?JSON.parse(text):null}catch(e){}
+    if(!res.ok){
+      const err=new Error((data&&data.message)||('HTTP '+res.status));
+      err.status=res.status;throw err;
+    }
+    return data;
+  }
+
+  function contentsRoute(cfg){
+    const file=cfg.path.split('/').map(encodeURIComponent).join('/');
+    return '/repos/'+encodeURIComponent(cfg.owner)+'/'+encodeURIComponent(cfg.repo)+'/contents/'+file;
+  }
+
+  // Updating an existing file needs its blob sha; a missing file is a create.
+  async function remoteSha(cfg){
+    try{
+      const data=await ghFetch(cfg,contentsRoute(cfg)+'?ref='+encodeURIComponent(cfg.branch));
+      if(Array.isArray(data))throw new Error(cfg.path+' is a directory, not a file');
+      return data.sha;
+    }catch(e){
+      if(e.status===404)return null;
+      throw e;
+    }
+  }
+
+  async function commit(cfg,message){
+    const sha=await remoteSha(cfg);
+    const body={
+      message:message||('Update '+cfg.path+' from the knowledge archive'),
+      content:toBase64(JSON.stringify(db,null,2)+'\n'),
+      branch:cfg.branch
+    };
+    if(sha)body.sha=sha;
+    return ghFetch(cfg,contentsRoute(cfg),{method:'PUT',body:JSON.stringify(body)});
+  }
+
+  function showResult(result,cfg){
+    const url=(result&&result.commit&&result.commit.html_url)||'';
+    const sha=((result&&result.commit&&result.commit.sha)||'').slice(0,7);
+    editorForm.onsubmit=null;
+    editorForm.innerHTML=
+      '<div class="form-result">'+
+        '<div class="ok">Committed <b>'+esc(sha||'ok')+'</b> to '+esc(cfg.owner+'/'+cfg.repo)+' · '+esc(cfg.branch)+'</div>'+
+        '<div class="form-note">GitHub Pages rebuilds in about a minute. Until then the live site still serves the previous <code>'+esc(cfg.path)+'</code>.'+
+        (url?'<br><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">view the commit ↗</a>':'')+'</div>'+
+      '</div>'+
+      '<div class="form-actions"><button type="button" class="save" id="ghDone">done</button></div>';
+    editorForm.querySelector('#ghDone').onclick=closeModal;
+  }
+
+  function open(){
+    const cfg=loadCfg();
+    editing={kind:'publish',id:null};
+    openModal('Publish to GitHub');
+    editorForm.innerHTML='';
+
+    const note=el('div','form-note');
+    note.innerHTML='Commits the current archive to <code>'+esc(cfg.path)+'</code>. '+
+      'Needs a <a href="'+TOKEN_HELP+'" target="_blank" rel="noopener noreferrer">fine-grained token ↗</a> '+
+      'limited to this one repository with <b>Contents: Read and write</b>. '+
+      'It is stored in this browser only and is sent to api.github.com and nowhere else — '+
+      'never paste a token into a browser you do not control.';
+
+    editorForm.append(
+      note,
+      field('owner','owner',cfg.owner),
+      field('repository','repo',cfg.repo),
+      field('branch','branch',cfg.branch),
+      field('file path','path',cfg.path),
+      field('commit message','message','Update knowledge archive ('+today()+')','text',true),
+      field('fine-grained token','token',cfg.token,'password',true),
+      field('keep token','remember',storedToken()?'browser':'session','select',false,
+        [{value:'browser',label:'remember in this browser'},{value:'session',label:'this tab only'}])
+    );
+    addFormActions();
+
+    if(storedToken()||sessionToken){
+      const forget=el('button','','forget token');
+      forget.type='button';
+      forget.onclick=()=>{forgetToken();closeModal();showToast('Token forgotten')};
+      editorForm.querySelector('.form-actions').prepend(forget);
+    }
+
+    const save=editorForm.querySelector('.form-actions .save');
+    save.textContent='publish';
+
+    editorForm.onsubmit=async e=>{
+      e.preventDefault();
+      const f=new FormData(editorForm);
+      const next={
+        owner:String(f.get('owner')||'').trim(),
+        repo:String(f.get('repo')||'').trim(),
+        branch:String(f.get('branch')||'').trim()||'main',
+        path:String(f.get('path')||'').trim().replace(/^\/+/,''),
+        token:String(f.get('token')||'').trim()
+      };
+      if(!next.owner||!next.repo||!next.path){showToast('Owner, repository and path are required');return}
+      if(!next.token){showToast('A fine-grained token is required');return}
+      save.disabled=true;save.textContent='publishing…';
+      try{
+        const result=await commit(next,String(f.get('message')||''));
+        saveCfg(next,String(f.get('remember'))==='browser');
+        showResult(result,next);
+        showToast('Published to '+next.owner+'/'+next.repo);
+      }catch(err){
+        save.disabled=false;save.textContent='publish';
+        const hint=err.status===401?'Token rejected — check that it has not expired.'
+          :err.status===403?'Token lacks Contents: Read and write on this repository.'
+          :err.status===404?'Repository or branch not found for this token.'
+          :err.status===409?'The file changed on GitHub since this page loaded — reload and publish again.'
+          :err.message;
+        alert('Publish failed: '+hint);
+      }
+    };
+  }
+
+  return {open};
+})();
+document.getElementById('publishBtn').onclick=()=>publisher.open();
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.contains('open'))closeModal();else if(inspector.classList.contains('open'))closeInspector()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'&&state.page==='knowledge'){e.preventDefault();searchInput.focus()}});
 

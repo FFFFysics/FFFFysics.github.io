@@ -31,8 +31,30 @@ FFFFysics.github.io/
 - Later edits: the browser copy in `localStorage` takes priority
 - Backup: use **export**
 - Restore: use **import**
+- Publish: use **publish** (commits `sample-knowledge.json` straight to this repository)
 
-Because GitHub Pages is static hosting, browser edits are not committed to the repository automatically. Export the JSON and replace `sample-knowledge.json` when you want to publish an updated public seed.
+## Publish from the browser
+
+GitHub Pages is static hosting, so the page has no server of its own. The **publish**
+button therefore talks to the GitHub Contents API directly from the browser: it reads the
+current `sample-knowledge.json`, commits the archive over it, and GitHub Pages redeploys
+on its own.
+
+Authentication is a fine-grained personal access token that you supply once:
+
+1. Create one at <https://github.com/settings/personal-access-tokens/new>.
+2. **Repository access** → *Only select repositories* → `FFFFysics.github.io`.
+3. **Permissions** → *Repository permissions* → **Contents: Read and write**.
+4. Paste it into the publish dialog and choose whether to keep it.
+
+The token is held in `localStorage` under `ffp-gh` (or only in the tab, if you pick
+*this tab only*) and is sent to `api.github.com` and nowhere else. It is a credential in
+a browser, so it is worth keeping short-lived and single-repository, and `forget token`
+in the dialog clears it. Do not enter a token on a machine you do not control — anyone
+with access to that browser profile can read it.
+
+Export/import still work unchanged for offline backups and for moving an archive between
+browsers.
 
 ## Deploy through GitHub web
 
