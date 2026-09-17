@@ -8,6 +8,24 @@
 
 A static research and knowledge archive at the intersection of continuum mechanics and plasma physics.
 
+## The hero model
+
+The home page is a two-dimensional flow-and-field model that is solved in closed
+form rather than stepped numerically. Lengths are in units of the cylinder radius
+`a`, speeds in the free stream `U`, and `μ₀/2π = 1`.
+
+| Layer | Model |
+|---|---|
+| Flow | Uniform stream + doublet — potential flow past a circular cylinder — plus a free vortex at the pointer carried by its Milne–Thomson circle-theorem images, so `r = a` stays an exact streamline. Streamlines are contours of `ψ`. |
+| Flux | Magnetic flux function of two parallel line currents, `ψ_B = −(I₁ Λ(r₁) + I₂ Λ(r₂))`. Field lines are its contours. |
+| Field | `B = ∇ψ_B × ẑ`: `I/r` outside a conductor and `I r/r_c²` inside, by Ampère's law with uniform current density — so nothing diverges on an axis. |
+| Force | Ampère's force per unit length between the two currents, `F = I₂ |B₁|` with `|B₁| = I₁/d`. |
+
+Contours are traced with marching squares over the exact scalar fields, so the
+lines carry no integration drift. Every number in the readout panel is computed by
+the same functions that draw the picture. Dragging drives the vortex; clicking
+reverses the probe current, and antiparallel currents repel.
+
 **Live site:** https://ffffysics.github.io/
 
 ## Repository structure

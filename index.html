@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" href="assets/ffffysics-mark.png">
 <link rel="canonical" href="https://ffffysics.github.io/">
 <meta property="og:title" content="FFFFysics — Interactive Research & Knowledge Archive">
-<meta property="og:description" content="An interactive reduced-field model, research archive, and linked knowledge graph for Flow, Flux, Field, and Force.">
+<meta property="og:description" content="An interactive closed-form flow and field model, research archive, and linked knowledge graph for Flow, Flux, Field, and Force.">
 <meta property="og:url" content="https://ffffysics.github.io/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://ffffysics.github.io/assets/ffffysics-lockup.png">
@@ -220,13 +220,16 @@ button{border:0;background:none}
 .home-mode{border:1px solid var(--line);background:rgba(255,255,255,.94);backdrop-filter:blur(8px);padding:5px 9px;border-radius:999px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.05em;color:var(--muted);cursor:pointer;transition:.15s}
 .home-mode:hover{border-color:var(--line2);color:var(--ink)}
 .home-mode.act{border-color:var(--ac);color:var(--acd);box-shadow:0 0 0 2px rgba(13,217,210,.06)}
-.home-diagnostic{position:absolute;right:20px;bottom:20px;z-index:3;min-width:176px;padding:10px 12px;border:1px solid var(--line);background:rgba(255,255,255,.78);backdrop-filter:blur(8px);font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:1.65;color:var(--muted);pointer-events:none}
+.home-diagnostic{position:absolute;right:20px;bottom:20px;z-index:3;min-width:198px;padding:10px 12px;border:1px solid var(--line);background:rgba(255,255,255,.78);backdrop-filter:blur(8px);font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:1.65;color:var(--muted);pointer-events:none}
 .home-diagnostic b{color:var(--ink);font-weight:500}.home-diagnostic .dcyan{color:var(--acd)}
+.home-diagnostic .dnote{color:var(--muted2);font-size:8px;letter-spacing:.02em;margin:3px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.home-diagnostic .drow{display:flex;justify-content:space-between;gap:16px;white-space:nowrap}
+.home-diagnostic .drow span:last-child{color:var(--ink)}
 .home-hint{position:absolute;z-index:3;right:20px;top:20px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--muted2);pointer-events:none}
-.main.home-mode .toolbar{position:absolute;top:0;left:0;right:0;border-bottom-color:transparent;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0));backdrop-filter:none;z-index:8}
-.main.home-mode .crumb{opacity:.58}
-.main.home-mode .hd,.main.home-mode .toggle,.main.home-mode .subbar{display:none!important}
-.main.home-mode .content-shell{min-height:100vh}
+.main.home-view .toolbar{position:absolute;top:0;left:0;right:0;border-bottom-color:transparent;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,0));backdrop-filter:none;z-index:8}
+.main.home-view .crumb{opacity:.58}
+.main.home-view .hd,.main.home-view .toggle,.main.home-view .subbar{display:none!important}
+.main.home-view .content-shell{min-height:100vh}
 
 @media(max-width:900px){
   .home-wash{background:linear-gradient(180deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.82) 45%,rgba(255,255,255,.98) 72%)}
@@ -353,11 +356,11 @@ button{border:0;background:none}
 
     <div class="content-shell">
 
-      <section class="home-stage" id="homeStage" aria-label="FFFFysics interactive reduced-field model">
+      <section class="home-stage" id="homeStage" aria-label="FFFFysics interactive two-dimensional flow and field model">
         <canvas class="home-canvas" id="mhdCanvas" aria-hidden="true"></canvas>
         <div class="home-wash" aria-hidden="true"></div>
         <div class="home-copy">
-          <div class="home-kicker">interactive reduced-field model</div>
+          <div class="home-kicker">potential flow · line currents · closed form</div>
           <h1 class="home-title"><strong>FFFF</strong>ysics</h1>
           <div class="home-four">Flow <span class="cyan">·</span> Flux <span class="cyan">·</span> Field <span class="cyan">·</span> Force</div>
           <p class="home-intro">Continuum mechanics, plasma physics, and electromagnetic propulsion — reconstructed through computation, experiment, theory, and linked notes.</p>
@@ -373,8 +376,8 @@ button{border:0;background:none}
           <button class="home-mode" data-hero-mode="FIELD">FIELD</button>
           <button class="home-mode" data-hero-mode="FORCE">FORCE</button>
         </div>
-        <div class="home-diagnostic" id="homeDiagnostic"><b>REDUCED MODEL</b><br>mode <span class="dcyan">AUTO</span><br>|u| 1.000<br>|B| 0.000<br>F* 0.000</div>
-        <div class="home-hint">move pointer to perturb the field</div>
+        <div class="home-diagnostic" id="homeDiagnostic"><b>2-D EXACT MODEL</b><div class="dnote">lengths in a · speeds in U · μ₀/2π = 1</div><div class="drow"><span>lens</span><span class="dcyan" id="dLens">AUTO</span></div><div class="drow"><span>Γ vortex</span><span id="dGamma">+0.00</span></div><div class="drow"><span>I₂ probe</span><span id="dI2">+0.62</span></div><div class="drow"><span>|B₁| = I₁/d</span><span id="dB1">0.000</span></div><div class="drow"><span>F = I₂|B₁|</span><span id="dF">+0.000</span></div><div class="drow"><span>|u| at probe</span><span id="dU">1.000</span></div></div>
+        <div class="home-hint">drag to drive the vortex · click to reverse the probe current</div>
       </section>
       <div class="list" id="list"></div>
       <div class="graph" id="graph">
@@ -538,9 +541,9 @@ function renderAll(){renderNav();renderHeader();renderToolbar();renderView();ren
 function renderNav(){document.querySelectorAll('[data-page]').forEach(a=>a.classList.toggle('on',a.dataset.page===state.page));document.getElementById('crumb').innerHTML='<b>FFFFysics</b> / '+state.page;}
 function renderHeader(){
   const title=document.getElementById('pageTitle'),desc=document.getElementById('pageDesc'),meta=document.getElementById('pageMeta'),listLabel=document.getElementById('listLabel');
-  document.querySelector('.main').classList.toggle('home-mode',state.page==='home');
+  document.querySelector('.main').classList.toggle('home-view',state.page==='home');
   if(state.page==='home'){
-    title.textContent='FFFFysics';desc.textContent='Interactive reduced-field model.';meta.innerHTML='';listLabel.textContent='home';
+    title.textContent='FFFFysics';desc.textContent='Potential flow past a current-carrying cylinder, solved in closed form.';meta.innerHTML='';listLabel.textContent='home';
   }else if(state.page==='research'){
     title.textContent='FFFFysics';desc.textContent='Physical systems investigated through computation, experiment, and theory — and the notes that reconstruct them.';
     meta.innerHTML='<span><b>'+RESEARCH_DATA.length+'</b> entries</span><span><b>4</b> lenses</span><span>MIT</span>';listLabel.textContent='file tree';
@@ -947,208 +950,315 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal.classList.
 
 
 /* ===================================================================
-   Interactive reduced-MHD hero
-   - Flow layer: analytic incompressible potential-flow disturbance.
-   - Flux/field layer: deformable 2-D flux-function contours.
-   - Force layer: nondimensional local J×B proxy vector.
-   This is a reduced visual model, not a Navier–Stokes/MHD PDE solver.
+   Interactive 2-D field hero — closed-form throughout
+
+   Flow      uniform stream + doublet = potential flow past a circular
+             cylinder, plus a free vortex at the probe carried by its
+             Milne-Thomson circle-theorem images, so r = a stays an
+             exact streamline. Streamlines are contours of psi.
+   Field     two parallel line currents (the cylinder is the conductor,
+             the probe a thin wire) with the uniform-current-density
+             interior solution, so nothing diverges on an axis.
+             Field lines are contours of the flux function psi_B.
+   Force     Ampere's force per unit length between the two currents,
+             F = I2 |B1| with |B1| = I1/d.
+
+   Lengths are in units of the cylinder radius a, speeds in the free
+   stream U, and mu0/2pi = 1. Every number in the readout comes from
+   the same functions that draw the picture.
    =================================================================== */
 const homeMHD=(()=>{
   const stage=document.getElementById('homeStage');
   const canvas=document.getElementById('mhdCanvas');
-  const ctx=canvas.getContext('2d',{alpha:false});
+  const ctx=canvas&&canvas.getContext('2d',{alpha:false});
   const diagnostic=document.getElementById('homeDiagnostic');
   const modeButtons=[...document.querySelectorAll('[data-hero-mode]')];
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let active=false,raf=0,w=1,h=1,dpr=1,last=0,mode='AUTO';
-  let pointer={x:0,y:0,tx:0,ty:0,inside:false,vx:0,vy:0,lastX:0,lastY:0};
-  let ro=null;
+  const TAU=Math.PI*2;
+
+  const I1=1;          // cylinder current
+  const I2MAX=1.25;    // probe current at full drag
+  const GMAX=2.6;      // free-vortex circulation at full drag, in units of U*a
+
+  let active=false,raf=0,w=1,h=1,dpr=1,prev=0,mode='AUTO',ro=null;
+  let cx=0,cy=0,a=60,rc=12;                       // cylinder axis, radius, probe core
+  let gamma=0,i2=.62,polarity=1,bLo=-6,bHi=-3,readAt=0;
+  const ptr={x:0,y:0,tx:0,ty:0,vx:0,vy:0,lx:0,ly:0,vys:0,speed:0,inside:false};
 
   const weights={
-    AUTO:{flow:.74,flux:.50,field:.32,force:.82},
-    FLOW:{flow:1,flux:.12,field:.08,force:.34},
-    FLUX:{flow:.24,flux:1,field:.50,force:.42},
-    FIELD:{flow:.18,flux:.66,field:1,force:.48},
-    FORCE:{flow:.26,flux:.30,field:.42,force:1}
+    AUTO :{flow:.82,flux:.52,field:.42,force:.78},
+    FLOW :{flow:1,  flux:.12,field:.10,force:.28},
+    FLUX :{flow:.28,flux:1,  field:.30,force:.32},
+    FIELD:{flow:.20,flux:.58,field:1,  force:.38},
+    FORCE:{flow:.26,flux:.24,field:.34,force:1  }
   };
 
+  /* ---- closed-form fields ---------------------------------------- */
+
+  // ln r with a uniform-density core of radius rc (finite conductor / Rankine vortex)
+  function lam(r2,core){const c2=core*core;return r2<c2?Math.log(core)+(r2-c2)/(2*c2):.5*Math.log(r2);}
+
+  // flow streamfunction: uniform stream + doublet + vortex with circle-theorem images
+  function psiFlow(x,y){
+    const dx=x-cx,dy=y-cy,r2=dx*dx+dy*dy,aa=a*a;
+    let s=dy*(1-aa/(r2<aa?aa:r2));
+    if(gamma!==0){
+      const qx=ptr.x-cx,qy=ptr.y-cy;
+      const q2=Math.max(qx*qx+qy*qy,aa*1.04);
+      const ix=cx+qx*aa/q2,iy=cy+qy*aa/q2;          // inverse point: image vortex -G
+      const ex=x-ptr.x,ey=y-ptr.y,gx=x-ix,gy=y-iy;
+      s-=(gamma*a/TAU)*(lam(ex*ex+ey*ey,rc)-lam(gx*gx+gy*gy,rc)+lam(r2,a));
+    }
+    return s;
+  }
+  // magnetic flux function of the two line currents
+  function psiB(x,y){
+    const dx=x-cx,dy=y-cy,ex=x-ptr.x,ey=y-ptr.y;
+    return -(I1*lam(dx*dx+dy*dy,a)+i2*polarity*lam(ex*ex+ey*ey,rc));
+  }
+  // B = grad(psi_B) x z: I/r outside a conductor, I r/rc^2 inside (Ampere)
+  function bvec(x,y,out){
+    const dx=x-cx,dy=y-cy,r2=dx*dx+dy*dy,aa=a*a;
+    const k1=I1/(r2<aa?aa:r2);
+    const ex=x-ptr.x,ey=y-ptr.y,e2=ex*ex+ey*ey,cc=rc*rc;
+    const k2=(i2*polarity)/(e2<cc?cc:e2);
+    out.x=-k1*dy-k2*ey;out.y=k1*dx+k2*ex;out.m=Math.hypot(out.x,out.y);
+    return out;
+  }
+  // u = d(psi)/dy, v = -d(psi)/dx by central difference on the exact streamfunction
+  function speedAt(x,y){
+    const e=1.2;
+    const u=(psiFlow(x,y+e)-psiFlow(x,y-e))/(2*e);
+    const v=-(psiFlow(x+e,y)-psiFlow(x-e,y))/(2*e);
+    return Math.hypot(u,v);
+  }
+
+  /* ---- marching squares ------------------------------------------ */
+  let buf=null,bufN=0,gnx=0,gny=0,gsp=1;
+  function sampleField(fn,sp){
+    gsp=sp;gnx=Math.ceil(w/sp)+1;gny=Math.ceil(h/sp)+1;
+    const n=gnx*gny;
+    if(!buf||bufN<n){buf=new Float32Array(n);bufN=n;}
+    let lo=Infinity,hi=-Infinity;
+    for(let j=0;j<gny;j++){
+      const y=j*sp,row=j*gnx;
+      for(let i=0;i<gnx;i++){const v=fn(i*sp,y);buf[row+i]=v;if(v<lo)lo=v;if(v>hi)hi=v;}
+    }
+    return{lo,hi};
+  }
+  function strokeContours(levels,rgb,alpha,lw){
+    if(alpha<.015)return;
+    const sp=gsp,nx=gnx,ny=gny,nl=levels.length;
+    ctx.beginPath();
+    for(let j=0;j<ny-1;j++){
+      const row=j*nx,y0=j*sp,y1=y0+sp;
+      for(let i=0;i<nx-1;i++){
+        const k=row+i;
+        const va=buf[k],vb=buf[k+1],vc=buf[k+nx+1],vd=buf[k+nx];
+        let lo=va,hi=va;
+        if(vb<lo)lo=vb;else if(vb>hi)hi=vb;
+        if(vc<lo)lo=vc;else if(vc>hi)hi=vc;
+        if(vd<lo)lo=vd;else if(vd>hi)hi=vd;
+        if(lo===hi)continue;
+        const x0=i*sp,x1=x0+sp;
+        for(let t=0;t<nl;t++){
+          const L=levels[t];
+          if(L<lo||L>hi)continue;
+          const m=(va>L?1:0)|(vb>L?2:0)|(vc>L?4:0)|(vd>L?8:0);
+          if(m===0||m===15)continue;
+          const e0=x0+sp*(L-va)/(vb-va||1e-9);      // top    a-b
+          const e1=y0+sp*(L-vb)/(vc-vb||1e-9);      // right  b-c
+          const e2=x0+sp*(L-vd)/(vc-vd||1e-9);      // bottom d-c
+          const e3=y0+sp*(L-va)/(vd-va||1e-9);      // left   a-d
+          switch(m){
+            case 1: case 14: ctx.moveTo(x0,e3);ctx.lineTo(e0,y0);break;
+            case 2: case 13: ctx.moveTo(e0,y0);ctx.lineTo(x1,e1);break;
+            case 3: case 12: ctx.moveTo(x0,e3);ctx.lineTo(x1,e1);break;
+            case 4: case 11: ctx.moveTo(x1,e1);ctx.lineTo(e2,y1);break;
+            case 6: case 9:  ctx.moveTo(e0,y0);ctx.lineTo(e2,y1);break;
+            case 7: case 8:  ctx.moveTo(x0,e3);ctx.lineTo(e2,y1);break;
+            case 5:  ctx.moveTo(x0,e3);ctx.lineTo(e0,y0);ctx.moveTo(x1,e1);ctx.lineTo(e2,y1);break;
+            case 10: ctx.moveTo(e0,y0);ctx.lineTo(x1,e1);ctx.moveTo(x0,e3);ctx.lineTo(e2,y1);break;
+          }
+        }
+      }
+    }
+    ctx.strokeStyle='rgba('+rgb+','+alpha+')';ctx.lineWidth=lw;ctx.stroke();
+  }
+
+  /* ---- layers ----------------------------------------------------- */
+  const flowLevels=[],bLevels=[];
+  function drawFlow(alpha){
+    const d=h/13;flowLevels.length=0;
+    for(let k=-9;k<=9;k++)flowLevels.push(k*d);
+    sampleField(psiFlow,15);
+    strokeContours(flowLevels,'17,17,17',alpha,.72);
+  }
+  function drawFluxLines(alpha){
+    const r=sampleField(psiB,15);
+    const s=1-Math.exp(-1/6);
+    bLo+=(r.lo-bLo)*s;bHi+=(r.hi-bHi)*s;
+    const n=13,step=(bHi-bLo)/(n+1);bLevels.length=0;
+    for(let k=1;k<=n;k++)bLevels.push(bLo+k*step);
+    strokeContours(bLevels,'13,217,210',alpha,.7);
+  }
+  const bv={x:0,y:0,m:0};
+  function drawFieldArrows(alpha){
+    if(alpha<.03)return;
+    const sp=Math.max(34,Math.min(54,Math.min(w,h)/15));
+    const bref=I1/(a*1.15),aa=a*a;
+    ctx.beginPath();
+    for(let gx=sp*.5;gx<w;gx+=sp){
+      for(let gy=sp*.5;gy<h;gy+=sp){
+        const dx=gx-cx,dy=gy-cy;
+        if(dx*dx+dy*dy<aa)continue;                // inside the conductor
+        bvec(gx,gy,bv);
+        const L=sp*.56*Math.min(1,bv.m/bref);
+        if(L<3)continue;
+        const ux=bv.x/bv.m,uy=bv.y/bv.m;
+        const hx=gx-ux*L*.5,hy=gy-uy*L*.5,ex=gx+ux*L*.5,ey=gy+uy*L*.5;
+        ctx.moveTo(hx,hy);ctx.lineTo(ex,ey);
+        const bl=Math.min(4.2,L*.42),bw=bl*.55;
+        ctx.moveTo(ex,ey);ctx.lineTo(ex-ux*bl-uy*bw,ey-uy*bl+ux*bw);
+        ctx.moveTo(ex,ey);ctx.lineTo(ex-ux*bl+uy*bw,ey-uy*bl-ux*bw);
+      }
+    }
+    ctx.strokeStyle='rgba(13,217,210,'+alpha+')';ctx.lineWidth=.85;ctx.stroke();
+  }
+  function currentMark(x,y,r,into,alpha){
+    ctx.beginPath();ctx.arc(x,y,r,0,TAU);
+    ctx.fillStyle='rgba(255,255,255,.95)';ctx.fill();
+    ctx.strokeStyle='rgba(17,17,17,'+alpha+')';ctx.lineWidth=1.1;ctx.stroke();
+    if(into){                                       // current into the page
+      const d=r*.62;ctx.beginPath();
+      ctx.moveTo(x-d,y-d);ctx.lineTo(x+d,y+d);ctx.moveTo(x+d,y-d);ctx.lineTo(x-d,y+d);
+      ctx.strokeStyle='rgba(17,17,17,'+alpha+')';ctx.lineWidth=1;ctx.stroke();
+    }else{                                          // current out of the page
+      ctx.beginPath();ctx.arc(x,y,Math.max(1.5,r*.26),0,TAU);
+      ctx.fillStyle='rgba(13,217,210,.95)';ctx.fill();
+    }
+  }
+  function drawBodies(alpha){
+    ctx.beginPath();ctx.arc(cx,cy,a,0,TAU);
+    ctx.fillStyle='rgba(255,255,255,.90)';ctx.fill();
+    ctx.strokeStyle='rgba(17,17,17,'+(.30+alpha*.34)+')';ctx.lineWidth=1.15;ctx.stroke();
+    currentMark(cx,cy,7.4,false,.82);
+    currentMark(ptr.x,ptr.y,rc*.58,polarity<0,.72);
+  }
+  function forceOnCylinder(){
+    const dx=ptr.x-cx,dy=ptr.y-cy,d=Math.max(a*1.05,Math.hypot(dx,dy));
+    const b1=I1/(d/a);                              // |B1| at the probe, lengths in a
+    const f=i2*polarity*b1;                         // Ampere force per unit length
+    return{fx:dx/d,fy:dy/d,d:d/a,b1,f};
+  }
+  function drawForce(alpha,F){
+    if(alpha<.05)return;
+    const s=F.f<0?-1:1,mag=Math.min(1,Math.abs(F.f)/1.5);
+    const L=Math.min(w,h)*(.07+.20*mag);
+    const ex=cx+F.fx*L*s,ey=cy+F.fy*L*s;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);
+    ctx.strokeStyle='rgba(17,17,17,'+(alpha*.95)+')';ctx.lineWidth=1.7;ctx.stroke();
+    const ux=F.fx*s,uy=F.fy*s,nx=-uy,ny=ux;
+    ctx.beginPath();ctx.moveTo(ex,ey);
+    ctx.lineTo(ex-ux*14+nx*7,ey-uy*14+ny*7);
+    ctx.lineTo(ex-ux*14-nx*7,ey-uy*14-ny*7);
+    ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+Math.min(1,alpha*1.2)+')';ctx.fill();
+  }
+
+  /* ---- readout ----------------------------------------------------- */
+  const out={};
+  function bindReadout(){
+    ['dLens','dGamma','dI2','dB1','dF','dU'].forEach(id=>{out[id]=document.getElementById(id)});
+  }
+  function updateReadout(F){
+    if(!out.dLens)return;
+    out.dLens.textContent=mode;
+    out.dGamma.textContent=(gamma>=0?'+':'')+gamma.toFixed(2);
+    out.dI2.textContent=(i2*polarity>=0?'+':'')+(i2*polarity).toFixed(2);
+    out.dB1.textContent=F.b1.toFixed(3);
+    out.dF.textContent=(F.f>=0?'+':'')+F.f.toFixed(3);
+    out.dU.textContent=speedAt(ptr.x,ptr.y).toFixed(3);
+  }
+
+  /* ---- frame -------------------------------------------------------- */
+  function draw(t){
+    if(!ctx)return;
+    const dt=Math.min(64,Math.max(1,t-(prev||t-16)));prev=t;
+    const ease=x=>1-Math.exp(-dt/x);
+
+    ptr.x+=(ptr.tx-ptr.x)*(reduced?1:ease(90));
+    ptr.y+=(ptr.ty-ptr.y)*(reduced?1:ease(90));
+    const decay=Math.exp(-dt/110);ptr.vx*=decay;ptr.vy*=decay;
+    ptr.speed+=(Math.hypot(ptr.vx,ptr.vy)-ptr.speed)*ease(110);
+    ptr.vys+=(ptr.vy-ptr.vys)*ease(130);
+    const drive=Math.max(-1,Math.min(1,-ptr.vys/7));
+    gamma+=((ptr.inside?GMAX*drive:0)-gamma)*ease(190);
+    i2+=((ptr.inside?I2MAX*(.55+.45*Math.min(1,ptr.speed/8)):I2MAX*.5)-i2)*ease(190);
+
+    cx=w*.655;cy=h*.46;
+    a=Math.max(46,Math.min(134,Math.min(w,h)*.115));
+    rc=a*.20;
+
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    const wt=weights[mode]||weights.AUTO;
+    drawFieldArrows(.05+wt.field*.42);
+    drawFluxLines(.06+wt.flux*.46);
+    drawFlow(.10+wt.flow*.26);
+    const F=forceOnCylinder();
+    drawBodies(wt.force);
+    drawForce(.30+wt.force*.62,F);
+    if(t-readAt>110){readAt=t;updateReadout(F)}
+  }
+  function loop(t){raf=0;if(!active)return;draw(t);raf=requestAnimationFrame(loop)}
+
+  /* ---- lifecycle ---------------------------------------------------- */
   function resize(){
-    if(!stage)return;
+    if(!stage||!ctx)return;
     const r=stage.getBoundingClientRect();
     w=Math.max(1,r.width);h=Math.max(1,r.height);dpr=Math.min(devicePixelRatio||1,2);
     canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
     canvas.style.width=w+'px';canvas.style.height=h+'px';
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    if(!pointer.inside){pointer.x=pointer.tx=w*.72;pointer.y=pointer.ty=h*.43;}
-    draw(performance.now());
+    ctx.lineCap='round';ctx.lineJoin='round';
+    if(!ptr.inside){ptr.x=ptr.tx=w*.80;ptr.y=ptr.ty=h*.26}
+    prev=0;draw(performance.now());
   }
   function setActive(v){
     active=!!v;
-    if(active){resize();if(!raf&&!reduced)raf=requestAnimationFrame(loop);else draw(performance.now());}
-    else{if(raf)cancelAnimationFrame(raf);raf=0;}
+    if(active){resize();if(!raf&&!reduced)raf=requestAnimationFrame(loop)}
+    else if(raf){cancelAnimationFrame(raf);raf=0}
   }
   function setMode(next){
     mode=weights[next]?next:'AUTO';
     modeButtons.forEach(b=>b.classList.toggle('act',b.dataset.heroMode===mode));
-    draw(performance.now());
+    if(!active||reduced)draw(performance.now());
   }
-  function modeClick(e){
-    const next=e.currentTarget.dataset.heroMode;
-    state.lens=next==='AUTO'?null:next;
-    setMode(next);renderLens();
-  }
-  modeButtons.forEach(b=>b.addEventListener('click',modeClick));
-
-  stage.addEventListener('pointermove',e=>{
-    const r=stage.getBoundingClientRect();
-    const nx=e.clientX-r.left,ny=e.clientY-r.top;
-    pointer.vx=nx-pointer.lastX;pointer.vy=ny-pointer.lastY;pointer.lastX=nx;pointer.lastY=ny;
-    pointer.tx=nx;pointer.ty=ny;pointer.inside=true;
-    if(reduced)draw(performance.now());
-  });
-  stage.addEventListener('pointerleave',()=>{pointer.inside=false;pointer.tx=w*.72;pointer.ty=h*.43;if(reduced)draw(performance.now())});
-  stage.addEventListener('pointerdown',()=>{stage.classList.toggle('probe-on')});
-
-  function disturbance(x,y,cx,cy,a,strength){
-    const dx=x-cx,dy=y-cy;let r2=dx*dx+dy*dy;
-    const min=a*a*1.08;if(r2<min)r2=min;
-    const r4=r2*r2,aa=a*a;
-    return{u:-strength*aa*(dx*dx-dy*dy)/r4,v:-strength*2*aa*dx*dy/r4};
-  }
-  function velocity(x,y,t){
-    const nodeX=w*.66,nodeY=h*.45;
-    let u=1,v=0;
-    const fixed=disturbance(x,y,nodeX,nodeY,Math.max(24,Math.min(w,h)*.038),1.05);u+=fixed.u;v+=fixed.v;
-    const sheet=Math.exp(-Math.pow((x-w*.54)/(w*.085),2));
-    v+=-(y-nodeY)*.0018*sheet;
-    if(pointer.inside){
-      const mouse=disturbance(x,y,pointer.x,pointer.y,Math.max(18,Math.min(w,h)*.025),.72);u+=mouse.u;v+=mouse.v;
-      const dx=x-pointer.x,dy=y-pointer.y,r2=dx*dx+dy*dy+900;
-      const gamma=Math.max(-26,Math.min(26,pointer.vx-pointer.vy))*.16;
-      u+=-gamma*dy/r2;v+=gamma*dx/r2;
-    }
-    v+=Math.sin(t*.00035+y*.012)*.018;
-    return{u,v};
-  }
-  function streamline(seedY,t,alpha,highlight=false,index=0){
-    let x=-28,y=seedY;const pts=[];const step=Math.max(2.8,Math.min(4.3,w/260));
-    for(let i=0;i<470;i++){
-      if(x>w+30||y<-40||y>h+40)break;
-      pts.push([x,y]);
-      const a=velocity(x,y,t),u1=Math.max(.28,a.u),s1=Math.max(-.22,Math.min(.22,a.v/u1));
-      const mx=x+step*.5,my=y+s1*step*.5;
-      const b=velocity(mx,my,t),u2=Math.max(.28,b.u),s2=Math.max(-.22,Math.min(.22,b.v/u2));
-      x+=step;y+=s2*step;
-    }
-    if(pts.length<2)return;
-    ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);
-    ctx.strokeStyle='rgba(17,17,17,'+alpha+')';ctx.lineWidth=highlight?1.15:.68;ctx.stroke();
-    if(highlight&&pts.length>20){
-      const speed=reduced?0:(t*.000035);const k=Math.floor(((speed+index*.23)%1)*(pts.length-1));const p=pts[k];
-      ctx.beginPath();ctx.arc(p[0],p[1],1.7,0,Math.PI*2);ctx.fillStyle='rgba(13,217,210,.88)';ctx.fill();
-    }
-  }
-  function drawFlux(t,alpha,fieldAlpha){
-    const cx=w*.665,cy=h*.45;const base=Math.min(w,h);
-    const px=pointer.x,py=pointer.y;
-    [0.095,0.145,0.205].forEach((r,j)=>{
-      ctx.beginPath();
-      for(let i=0;i<=180;i++){
-        const a=i/180*Math.PI*2;
-        let x=cx+base*r*(1.18+j*.08)*Math.cos(a),y=cy+base*r*.86*Math.sin(a);
-        const dx=x-px,dy=y-py,inf=pointer.inside?Math.exp(-(dx*dx+dy*dy)/(base*base*.032)):0;
-        x+=dx*inf*.07;y+=dy*inf*.05;
-        x+=Math.sin(a*2+t*.00025+j)*1.1;
-        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-      }
-      ctx.strokeStyle='rgba(17,17,17,'+(alpha*(.40+j*.12))+')';ctx.lineWidth=.75;ctx.stroke();
+  if(stage){
+    modeButtons.forEach(b=>b.addEventListener('click',e=>{
+      const next=e.currentTarget.dataset.heroMode;
+      state.lens=next==='AUTO'?null:next;
+      setMode(next);renderLens();
+    }));
+    stage.addEventListener('pointermove',e=>{
+      const r=stage.getBoundingClientRect();
+      const nx=e.clientX-r.left,ny=e.clientY-r.top;
+      ptr.vx=nx-ptr.lx;ptr.vy=ny-ptr.ly;ptr.lx=nx;ptr.ly=ny;
+      ptr.tx=nx;ptr.ty=ny;ptr.inside=true;
+      if(reduced)draw(performance.now());
     });
-    if(fieldAlpha>.08){
-      for(let i=0;i<12;i++){
-        const a=i/12*Math.PI*2+t*.00008;const rx=base*.17,ry=base*.115;
-        const x=cx+rx*Math.cos(a),y=cy+ry*Math.sin(a);const tx=-rx*Math.sin(a),ty=ry*Math.cos(a);const m=Math.hypot(tx,ty);drawMiniArrow(x,y,tx/m,ty/m,fieldAlpha*.62);
-      }
-    }
+    stage.addEventListener('pointerleave',()=>{
+      ptr.inside=false;ptr.tx=w*.80;ptr.ty=h*.26;
+      if(reduced)draw(performance.now());
+    });
+    // antiparallel currents repel: flip the probe current to reverse the force
+    stage.addEventListener('pointerdown',e=>{
+      if(e.target.closest('a,button'))return;              // the lens buttons sit inside the stage
+      polarity=-polarity;if(reduced)draw(performance.now());
+    });
+    bindReadout();
+    if('ResizeObserver'in window){ro=new ResizeObserver(resize);ro.observe(stage)}
+    else window.addEventListener('resize',resize);
   }
-  /* reduced B-field: azimuthal circulation around the node + pointer perturbation */
-  function bfield(x,y){
-    const cx=w*.665,cy=h*.45,base=Math.min(w,h);
-    const dx=x-cx,dy=(y-cy)/0.82;
-    let bx=-dy,by=dx;                        // azimuthal direction (B around current node)
-    if(pointer.inside){
-      const ex=x-pointer.x,ey=y-pointer.y,er2=ex*ex+ey*ey+base*base*0.004;
-      const wgt=base*base*0.02/er2;          // local swirl from the pointer
-      bx+=-ey*wgt;by+=ex*wgt;
-    }
-    const m=Math.hypot(bx,by)||1;
-    const dist=Math.hypot(dx,dy);
-    const mag=Math.min(1,(base*0.17)/(dist+base*0.06));
-    return{ux:bx/m,uy:by/m,mag,dist,base};
-  }
-  /* MHD-style vector field: a cyan lattice of small field arrows across the stage */
-  function drawFieldGrid(t,alpha){
-    if(alpha<.03)return;
-    const base=Math.min(w,h),sp=Math.max(38,Math.min(52,base/13)),core=base*0.085;
-    for(let gx=sp*.5;gx<w;gx+=sp){
-      for(let gy=sp*.5;gy<h;gy+=sp){
-        const b=bfield(gx,gy);
-        if(b.dist<core)continue;             // leave the node core to the flux ring
-        const L=sp*.46*(.45+.55*b.mag),a=alpha*(.30+.70*b.mag);
-        const hx=gx-b.ux*L*.5,hy=gy-b.uy*L*.5,ex=gx+b.ux*L*.5,ey=gy+b.uy*L*.5;
-        ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(ex,ey);
-        ctx.strokeStyle='rgba(13,217,210,'+a+')';ctx.lineWidth=.85;ctx.stroke();
-        const hw=2.3;
-        ctx.beginPath();ctx.moveTo(ex,ey);
-        ctx.lineTo(ex-b.ux*4-b.uy*hw,ey-b.uy*4+b.ux*hw);
-        ctx.lineTo(ex-b.ux*4+b.uy*hw,ey-b.uy*4-b.ux*hw);
-        ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+a+')';ctx.fill();
-      }
-    }
-  }
-  function drawMiniArrow(x,y,ux,uy,alpha){
-    const L=10;ctx.beginPath();ctx.moveTo(x-ux*L*.45,y-uy*L*.45);ctx.lineTo(x+ux*L*.45,y+uy*L*.45);ctx.strokeStyle='rgba(13,217,210,'+alpha+')';ctx.lineWidth=.75;ctx.stroke();
-    const ex=x+ux*L*.45,ey=y+uy*L*.45;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-ux*3-uy*2,ey-uy*3+ux*2);ctx.lineTo(ex-ux*3+uy*2,ey-uy*3-ux*2);ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+alpha+')';ctx.fill();
-  }
-  function drawAxis(alpha){
-    const sx=w*.54,cy=h*.45,nodeX=w*.66;
-    ctx.save();ctx.strokeStyle='rgba(17,17,17,'+alpha+')';ctx.lineWidth=.8;ctx.setLineDash([7,8]);
-    ctx.beginPath();ctx.moveTo(sx,h*.18);ctx.lineTo(sx,h*.78);ctx.moveTo(nodeX,cy);ctx.lineTo(w*.93,cy);ctx.stroke();ctx.setLineDash([]);
-    ctx.beginPath();ctx.moveTo(sx,h*.25);ctx.lineTo(sx,h*.68);ctx.strokeStyle='rgba(17,17,17,'+(alpha*1.9)+')';ctx.lineWidth=1.05;ctx.stroke();ctx.restore();
-  }
-  function drawForce(t,alpha){
-    const x=w*.66,y=h*.45;let ax=.82,ay=-.58;
-    if(pointer.inside){const dx=pointer.x-x,dy=pointer.y-y,m=Math.max(1,Math.hypot(dx,dy));ax=.72*ax+.28*dx/m;ay=.72*ay+.28*dy/m;const mm=Math.hypot(ax,ay);ax/=mm;ay/=mm;}
-    const L=Math.min(w,h)*(.20+(mode==='FORCE'?.045:0));const ex=x+ax*L,ey=y+ay*L;
-    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(ex,ey);ctx.strokeStyle='rgba(17,17,17,'+(alpha*.98)+')';ctx.lineWidth=1.6;ctx.stroke();
-    const nx=-ay,ny=ax;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-ax*14+nx*7,ey-ay*14+ny*7);ctx.lineTo(ex-ax*14-nx*7,ey-ay*14-ny*7);ctx.closePath();ctx.fillStyle='rgba(13,217,210,'+Math.min(1,alpha*1.15)+')';ctx.fill();
-    ctx.beginPath();ctx.arc(x,y,7.2,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='rgba(17,17,17,.9)';ctx.lineWidth=1.2;ctx.stroke();ctx.beginPath();ctx.arc(x,y,3.2,0,Math.PI*2);ctx.fillStyle='rgba(13,217,210,'+Math.min(1,alpha*1.2)+')';ctx.fill();
-  }
-  function updateDiagnostic(t){
-    const x=pointer.inside?pointer.x:w*.72,y=pointer.inside?pointer.y:h*.43;const q=velocity(x,y,t);const um=Math.hypot(q.u,q.v);
-    const dx=(x-w*.665)/Math.max(1,Math.min(w,h)*.17),dy=(y-h*.45)/Math.max(1,Math.min(w,h)*.12),r2=dx*dx+dy*dy+.18;const bm=Math.min(3,Math.hypot(-dy/r2,dx/r2));const j=Math.exp(-Math.pow((x-w*.54)/(w*.065),2));const f=j*bm;
-    diagnostic.innerHTML='<b>REDUCED MODEL</b><br>mode <span class="dcyan">'+mode+'</span><br>|u| '+um.toFixed(3)+'<br>|B| '+bm.toFixed(3)+'<br>F* '+f.toFixed(3);
-  }
-  function draw(t){
-    if(!canvas||!ctx)return;
-    pointer.x+=(pointer.tx-pointer.x)*(reduced?1:.075);pointer.y+=(pointer.ty-pointer.y)*(reduced?1:.075);
-    ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
-    const wt=weights[mode]||weights.AUTO;
-    drawAxis(.20+wt.field*.10);
-    drawFieldGrid(t,.05+wt.field*.6);
-    const count=w<700?9:15;for(let i=0;i<count;i++){
-      const seed=h*(.21+i/(count-1)*.52);const central=Math.abs(i-(count-1)/2)<2.1;
-      streamline(seed,t,.08+wt.flow*.22,central&&wt.flow>.35,i);
-    }
-    drawFlux(t,.10+wt.flux*.55,.08+wt.field*.7);
-    drawForce(t,.34+wt.force*.66);
-    updateDiagnostic(t);
-  }
-  function loop(t){
-    raf=0;if(!active)return;
-    if(t-last>30){last=t;draw(t)}
-    raf=requestAnimationFrame(loop);
-  }
-  if('ResizeObserver'in window){ro=new ResizeObserver(resize);ro.observe(stage)}else window.addEventListener('resize',resize);
   return{setActive,setMode,resize};
 })();
 
